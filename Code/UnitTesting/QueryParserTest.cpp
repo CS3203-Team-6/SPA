@@ -39,6 +39,20 @@ namespace UnitTesting
 			Assert::AreEqual(actual == expected, true);
 		}
 
+		TEST_METHOD(splitSelectParameter_synonymWithAttribute_success)
+		{
+			vector<string> actual = QueryParser::splitSelectParameter("Select p.procName");
+			vector<string> expected{ "p.procName" };
+			Assert::AreEqual(actual == expected, true);
+		}
+
+		TEST_METHOD(splitSelectParameter_tuplesOfSynonymAttribute_success)
+		{
+			vector<string> actual = QueryParser::splitSelectParameter("Select <p.procName, v.varName, r.stmt#>");
+			vector<string> expected{ "p.procName", "v.varName", "r.stmt#" };
+			Assert::AreEqual(actual == expected, true);
+		}
+
 		TEST_METHOD(splitSelectParameter_tupleWithSpace_success)
 		{
 			vector<string> actual = QueryParser::splitSelectParameter("Select <p, q, r>");

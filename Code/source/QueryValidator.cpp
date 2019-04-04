@@ -87,15 +87,55 @@ Validates vector of selected synonym based on following conditions:
 */
 string QueryValidator::validateSelectedVar(vector<string> selectedVar, unordered_map<string, string> declarationsMap) {
 
+	unordered_set<string> intTypeRefStmtNum = { "stmt", "read", "print", "while", "if", "assign", "call" };
+	unordered_set<string> intTypeRefValue = { "constant" };
+	unordered_set<string> stringTypeRefProcName = { "procedure", "call" };
+	unordered_set<string> stringTypeRefVarName = { "variable", "read", "print" };
+
 	for (int i = 0; i < selectedVar.size(); i++) {
+		
+		// select type: BOOLEAN
 		if (selectedVar[i] == "BOOLEAN" && selectedVar.size() != 1) {
 			return "too many selected variable for boolean";
 		}
 		
-		if (!LexicalToken::verifyName(selectedVar[i])) {
+		// select type: synonym with attributes
+		if (selectedVar[i].find(".") != -1) {
+			int dotIndex = selectedVar[i].find(".");
+			string left = selectedVar[i].substr(0, dotIndex);
+			string right = selectedVar[i].substr(dotIndex + 1, selectedVar[i].length() - dotIndex - 1);
+			
+			if (declarationsMap.find(left) == declarationsMap.end()) {
+				return "selected variable not found";
+			}
+			
+			string synonymType = declarationsMap.find(left)->second;
+
+			if (right == "stmt#" && (intTypeRefStmtNum.find(synonymType) != intTypeRefStmtNum.end())) {
+				// valid stmt# attribute
+				continue;
+			}
+			else if (right == "value" && (intTypeRefValue.find(synonymType) != intTypeRefValue.end())) {
+				// valid value attribute
+				continue;
+			}
+			else if (right == "procName" && (stringTypeRefProcName.find(synonymType) != stringTypeRefProcName.end())) {
+				// valid procName attribute
+				continue;
+			}
+			else if (right == "varName" && (stringTypeRefVarName.find(synonymType) != stringTypeRefVarName.end())) {
+				// valid varName attribute
+				continue;
+			}
+			else {
+				return "invalid synonym attributes";
+			}
+
+		} else if (!LexicalToken::verifyName(selectedVar[i])) {
 			return "invalid variable name";
 		}
 
+		// select type: synonym
 		if (selectedVar[i] != "BOOLEAN" && declarationsMap.find(selectedVar[i]) == declarationsMap.end()) {
 			return "selected variable not found";
 		}

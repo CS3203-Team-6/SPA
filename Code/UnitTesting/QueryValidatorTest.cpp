@@ -133,6 +133,51 @@ namespace UnitTesting
 			Assert::AreEqual(actual == expected, true);
 		}
 
+		TEST_METHOD(validateSelectedVar_selectAttributeSynonym_typeProcName_success)
+		{
+			vector<string> selectedVar = { "p.procName", "c.procName" };
+			unordered_map<string, string> declarationsMap = { {"p", "procedure"}, {"c", "call"}, {"v", "variable"}, {"r", "read"}, {"pr", "print"} };
+			string actual = QueryValidator::validateSelectedVar(selectedVar, declarationsMap);
+			string expected = "";
+			Assert::AreEqual(actual == expected, true);
+		}
+
+		TEST_METHOD(validateSelectedVar_selectAttributeSynonym_typeVarName_success)
+		{
+			vector<string> selectedVar = { "v.varName", "r.varName", "pr.varName" };
+			unordered_map<string, string> declarationsMap = { {"p", "procedure"}, {"c", "call"}, {"v", "variable"}, {"r", "read"}, {"pr", "print"} };
+			string actual = QueryValidator::validateSelectedVar(selectedVar, declarationsMap);
+			string expected = "";
+			Assert::AreEqual(actual == expected, true);
+		}
+
+		TEST_METHOD(validateSelectedVar_selectAttributeSynonym_typeValue_success)
+		{
+			vector<string> selectedVar = { "c.value", "c1.value" };
+			unordered_map<string, string> declarationsMap = { {"c", "constant"}, {"c1", "constant"} };
+			string actual = QueryValidator::validateSelectedVar(selectedVar, declarationsMap);
+			string expected = "";
+			Assert::AreEqual(actual == expected, true);
+		}
+
+		TEST_METHOD(validateSelectedVar_selectAttributeSynonym_typeStmtNumber_success)
+		{
+			vector<string> selectedVar = { "s.stmt#", "r.stmt#", "p.stmt#", "c.stmt#", "w.stmt#", "i.stmt#", "a.stmt#" };
+			unordered_map<string, string> declarationsMap = { {"s", "stmt"}, {"r", "read"}, {"p", "print"}, {"c", "call"}, {"w", "while"}, {"i", "if"}, {"a", "assign"} };
+			string actual = QueryValidator::validateSelectedVar(selectedVar, declarationsMap);
+			string expected = "";
+			Assert::AreEqual(actual == expected, true);
+		}
+
+		TEST_METHOD(validateSelectedVar_selectAttributeSynonym_invalidAttribute)
+		{
+			vector<string> selectedVar = { "s.stmt#", "r.stmt#", "p.procName" };
+			unordered_map<string, string> declarationsMap = { {"s", "stmt"}, {"r", "read"}, {"p", "print"}, {"c", "call"}, {"w", "while"}, {"i", "if"}, {"a", "assign"} };
+			string actual = QueryValidator::validateSelectedVar(selectedVar, declarationsMap);
+			string expected = "invalid synonym attributes";
+			Assert::AreEqual(actual == expected, true);
+		}
+
 		TEST_METHOD(validateSuchThatParam_success)
 		{
 			vector<pair<string, pair<string, string>>> param{ {"Parent", { "ifs", "_" }} };
