@@ -18,6 +18,14 @@ public:
 		std::vector<pair<std::string, std::string>> withCondition);
 
 private:
+	static std::unordered_set<std::string> toStringSet(
+		std::unordered_map<std::string, std::string> declarations,
+		std::vector<std::string> selectedVar,
+		std::unordered_map<std::string, std::vector<std::string>> projectTable);
+	static std::unordered_map<std::string, std::vector<std::string>> getProjectTable(
+		std::unordered_map<std::string, std::string> declarations,
+		std::vector<std::string> selectedVar,
+		std::unordered_map<std::string, std::vector<std::string>> resultTable);
 	static std::pair<std::string, std::unordered_map<std::string, std::vector<std::string>>> evaluateTable(
 		std::unordered_map<std::string, std::string> declarations,
 		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> suchThatCondition,

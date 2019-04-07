@@ -30,69 +30,88 @@ std::unordered_set<std::string> QueryEvaluator::projectResult(
 	std::unordered_set<std::string> resultSet;
 	if (selectedVar[0] == "BOOLEAN") {
 		resultSet.insert(status);
-		return resultSet;
 	}
-	else {
-		if (status == "FALSE" || (resultTable.size() != 0 && resultTable.begin()->second.size() == 0)) {
-			return resultSet;
-		}
-		else {
-			std::unordered_map<std::string, std::vector<std::string>> projectTable;
-			std::vector<std::string> notInResult;
-			for (std::vector<std::string>::size_type i = 0; i != selectedVar.size(); i++) {
-				std::string currentVar = selectedVar[i];
-				if (hasReference(currentVar)) {
-					std::string attr = attrOf(currentVar);
-					if (resultTable.count(attr) == 0) {
-						notInResult.push_back(attr);
-					} 
-					else {
-						projectTable.insert({ attr, resultTable[attr] });
-					}
-				}
-				else if (resultTable.count(currentVar) == 0) {
-					notInResult.push_back(currentVar);
-				}
-				else {
-					projectTable.insert({ currentVar, resultTable[currentVar] });
-				}
-			}
-			for (std::vector<std::string>::size_type i = 0; i != notInResult.size(); i++) {
-				projectTable = ContainerUtil::product(projectTable, getStmts(declarations, notInResult[i]));
-			}
-			int projectedSize = projectTable.begin()->second.size();
-			for (std::vector<std::string>::size_type i = 0; i != projectedSize; i++) {
-				std::string tuple;
-				for (std::vector<std::string>::size_type j = 0; j != selectedVar.size(); j++) {
-					std::string currentVar = selectedVar[j];
-					if (tuple.size() == 0) {
-						if (hasReference(currentVar)) {
-							std::string attr = attrOf(currentVar);
-							tuple = toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
-						}
-						else {
-							tuple = projectTable[currentVar][i];
-						}
-					} 
-					else {
-						if (hasReference(currentVar)) {
-							std::string attr = attrOf(currentVar);
-							tuple = tuple  + " " + 
-								toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
-						}
-						else {
-							tuple = tuple + " " + projectTable[currentVar][i];
-						}
-					}
-				}
-				resultSet.insert(tuple);
-			}
-		}
-
-		return resultSet;
+	else if (status == "TRUE" && (resultTable.size() == 0 || resultTable.begin()->second.size() != 0)) {
+			std::unordered_map<std::string, std::vector<std::string>> projectTable =
+				getProjectTable(declarations, selectedVar, resultTable);
+			resultSet = toStringSet(declarations, selectedVar, projectTable);
 	}
+	return resultSet;
 }
 
+/*
+Translate the projectTable to 
+set of strings.
+*/
+std::unordered_set<std::string> QueryEvaluator::toStringSet(
+	std::unordered_map<std::string, std::string> declarations,
+	std::vector<std::string> selectedVar,
+	std::unordered_map<std::string, std::vector<std::string>> projectTable) {
+	std::unordered_set<std::string> resultSet;
+	int projectedSize = projectTable.begin()->second.size();
+	for (std::vector<std::string>::size_type i = 0; i != projectedSize; i++) {
+		std::string tuple;
+		for (std::vector<std::string>::size_type j = 0; j != selectedVar.size(); j++) {
+			std::string currentVar = selectedVar[j];
+			if (tuple.size() == 0) {
+				if (hasReference(currentVar)) {
+					std::string attr = attrOf(currentVar);
+					tuple = toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
+				}
+				else {
+					tuple = projectTable[currentVar][i];
+				}
+			}
+			else {
+				if (hasReference(currentVar)) {
+					std::string attr = attrOf(currentVar);
+					tuple = tuple + " " +
+						toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
+				}
+				else {
+					tuple = tuple + " " + projectTable[currentVar][i];
+				}
+			}
+		}
+		resultSet.insert(tuple);
+	}
+	return resultSet;
+}
+
+/*
+Get the project table  
+with selected variables as 
+the columns from resultTable.
+*/
+std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::getProjectTable(
+	std::unordered_map<std::string, std::string> declarations,
+	std::vector<std::string> selectedVar,
+	std::unordered_map<std::string, std::vector<std::string>> resultTable) {
+	std::unordered_map<std::string, std::vector<std::string>> projectTable;
+	std::vector<std::string> notInResult;
+	for (std::vector<std::string>::size_type i = 0; i != selectedVar.size(); i++) {
+		std::string currentVar = selectedVar[i];
+		if (hasReference(currentVar)) {
+			std::string attr = attrOf(currentVar);
+			if (resultTable.count(attr) == 0) {
+				notInResult.push_back(attr);
+			}
+			else {
+				projectTable.insert({ attr, resultTable[attr] });
+			}
+		}
+		else if (resultTable.count(currentVar) == 0) {
+			notInResult.push_back(currentVar);
+		}
+		else {
+			projectTable.insert({ currentVar, resultTable[currentVar] });
+		}
+	}
+	for (std::vector<std::string>::size_type i = 0; i != notInResult.size(); i++) {
+		projectTable = ContainerUtil::product(projectTable, getStmts(declarations, notInResult[i]));
+	}
+	return projectTable;
+}
 
 /*
 Merge all the results of each clause
