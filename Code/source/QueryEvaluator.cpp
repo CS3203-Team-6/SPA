@@ -293,10 +293,10 @@ std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evalua
 		if ((attrType == "call") && (ref == "procName")) {
 			return ContainerUtil::to_mapvec(attr, PKB().getStmCalling(trimFrontEnd(left)));
 		}
-		else if ((attrType == "read") && (ref == "procName")) {
+		else if ((attrType == "read") && (ref == "varName")) {
 			return evaluateSuchThat(declarations, "Modifies", attr, left);
 		}
-		else if ((attrType == "print") && (ref == "procName")) {
+		else if ((attrType == "print") && (ref == "varName")) {
 			return evaluateSuchThat(declarations, "Uses", attr, left);
 		}
 		else {
