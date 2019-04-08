@@ -40,7 +40,7 @@ private:
 	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> graph;
 	// sets are used for bookkeeping to prevent infinite calls
 	std::unordered_set<std::string> synSet;
-	std::set<std::pair<int,int>> clSet;
+	std::set<std::pair<int,int>, std::greater<std::pair<int, int>>> clSet;
 	// processing functions - refer to .cpp for more details
 	void groupByClauseType(int t);
 	void createMaps(std::vector<std::string> synLst, std::pair<int,int> cl);

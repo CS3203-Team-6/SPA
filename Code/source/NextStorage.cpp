@@ -1,10 +1,10 @@
 #include "NextStorage.h"
 
 
-unordered_map<int, nRelationships> NextStorage::nextTable;
-unordered_set< pair<int, int>, intPairhash> NextStorage::nextPairList;
-unordered_set<int> NextStorage::nextList;
-unordered_set<int> NextStorage::prevList;
+std::unordered_map<int, nRelationships> NextStorage::nextTable;
+std::unordered_set< std::pair<int, int>, intPairhash> NextStorage::nextPairList;
+std::unordered_set<int> NextStorage::nextList;
+std::unordered_set<int> NextStorage::prevList;
 
 NextStorage::NextStorage()
 {
@@ -13,7 +13,7 @@ NextStorage::NextStorage()
 bool NextStorage::addNext(int prev, int next)
 {
 	// if next Pair is already added
-	if (!nextPairList.emplace(pair<int, int>(prev, next)).second)
+	if (!nextPairList.emplace(std::pair<int, int>(prev, next)).second)
 	{
 		return false;
 	}
@@ -40,7 +40,7 @@ bool NextStorage::isEmpty()
 	return nextTable.size() == 0;
 }
 
-unordered_set<int> NextStorage::getNext(int ln)
+std::unordered_set<int> NextStorage::getNext(int ln)
 {
 	if (nextTable.find(ln) != nextTable.end())
 	{
@@ -49,7 +49,7 @@ unordered_set<int> NextStorage::getNext(int ln)
 	return {};
 }
 
-unordered_set<int> NextStorage::getPrev(int ln)
+std::unordered_set<int> NextStorage::getPrev(int ln)
 {
 	if (nextTable.find(ln) != nextTable.end())
 	{
@@ -58,17 +58,17 @@ unordered_set<int> NextStorage::getPrev(int ln)
 	return {};
 }
 
-unordered_set<int> NextStorage::getAllNext()
+std::unordered_set<int> NextStorage::getAllNext()
 {
 	return nextList;
 }
 
-unordered_set<int> NextStorage::getAllPrev()
+std::unordered_set<int> NextStorage::getAllPrev()
 {
 	return prevList;
 }
 
-unordered_set<pair<int, int>, intPairhash> NextStorage::getNextPairs()
+std::unordered_set<std::pair<int, int>, intPairhash> NextStorage::getNextPairs()
 {
 	return nextPairList;
 }

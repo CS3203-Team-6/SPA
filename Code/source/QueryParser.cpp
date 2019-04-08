@@ -7,15 +7,13 @@
 #include <unordered_map>
 #include <limits>
 
-using namespace std;
-
 #include "QueryEvaluator.h"
 #include "QueryParser.h"
 #include "QueryValidator.h"
 #include "StringUtil.h"
 
-string whitespace = " \f\n\r\t\v";
-int maxInt = numeric_limits<int>::max();
+std::string whitespace = " \f\n\r\t\v";
+int maxInt = std::numeric_limits<int>::max();
 
 /*
 Main parser function for input query.
@@ -25,10 +23,10 @@ Passes the following to query evaluator:
 3. vector<pair<string, pair<string, string>>> suchThatCondition
 4. vector<pair<string, pair<string, string>>> patternCondition
 */
-unordered_set<string> QueryParser::parse(string query) {
+std::unordered_set<std::string> QueryParser::parse(std::string query) {
 	
-	string errorString;
-	unordered_set<string> result;
+	std::string errorString;
+	std::unordered_set<std::string> result;
 
 	// initial query validation
 	errorString = QueryValidator::initialValidation(query);
@@ -38,7 +36,7 @@ unordered_set<string> QueryParser::parse(string query) {
 	}
 
 	// splitting clauses
-	vector<string> clauses = splitClauses(query);
+	std::vector<std::string> clauses = splitClauses(query);
 
 	// validating clauses
 	errorString = QueryValidator::validateClauses(clauses);
@@ -48,7 +46,7 @@ unordered_set<string> QueryParser::parse(string query) {
 	}
 
 	// parsing declarations
-	unordered_map<string, string> declarations = splitDeclarations(clauses);
+	std::unordered_map<std::string, std::string> declarations = splitDeclarations(clauses);
 
 	// validating declarations
 	errorString = QueryValidator::validateDeclarations(declarations);
@@ -58,23 +56,23 @@ unordered_set<string> QueryParser::parse(string query) {
 	}
 
 	// parsing "Select" statement
-	string selectStatement = clauses[clauses.size() - 1];
+	std::string selectStatement = clauses[clauses.size() - 1];
 
-	vector<string> selectedVar;
-	vector<pair<string, pair<string, string>>> suchThatCondition;
-	vector<pair<string, pair<string, string>>> patternCondition;
-	vector<pair<string, string>> withCondition;
+	std::vector<std::string> selectedVar;
+	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> suchThatCondition;
+	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> patternCondition;
+	std::vector<std::pair<std::string, std::string>> withCondition;
 
-	vector<string> suchThatClauses;
-	vector<string> patternClauses;
-	vector<string> withClauses;
+	std::vector<std::string> suchThatClauses;
+	std::vector<std::string> patternClauses;
+	std::vector<std::string> withClauses;
 	int suchThatIndex = selectStatement.find("such that");
 	int patternIndex = selectStatement.find("pattern");
 	int withIndex = selectStatement.find("with");
 	int andIndex = maxInt;
-	string previousClause;
+	std::string previousClause;
 
-	vector<int> indexes = { suchThatIndex, patternIndex, withIndex };
+	std::vector<int> indexes = { suchThatIndex, patternIndex, withIndex };
 	int nextIndex = getMinimumValue(indexes);
 
 	if (nextIndex == -1) {
@@ -97,7 +95,7 @@ unordered_set<string> QueryParser::parse(string query) {
 			nextIndex = selectStatement.length();
 		}
 
-		string currentClause = selectStatement.substr(0, nextIndex);
+		std::string currentClause = selectStatement.substr(0, nextIndex);
 		if (currentClause.find("such that") != -1 || (currentClause.find("and") != -1 && previousClause == "such that")) {
 			previousClause = "such that";
 			suchThatClauses.push_back(currentClause);
@@ -173,9 +171,9 @@ unordered_set<string> QueryParser::parse(string query) {
 Splits the query string by char ";".
 Returns a vector<string> consisting of every declaration clauses (without trailing whitespaces) and the "Select" statement
 */
-vector<string> QueryParser::splitClauses(string query) {
+std::vector<std::string> QueryParser::splitClauses(std::string query) {
 	
-	vector<string> output;
+	std::vector<std::string> output;
 	char delimiter = ';';
 	int startPoint = 0;
 	int endPoint = query.find(delimiter);
@@ -195,16 +193,16 @@ vector<string> QueryParser::splitClauses(string query) {
 Splits each declarations clause by whitespaces.
 Returns a vector<pair<string, string>> consisting of design-entity and synonym
 */
-unordered_map<string, string> QueryParser::splitDeclarations(vector<string> clauses) {
+std::unordered_map<std::string, std::string> QueryParser::splitDeclarations(std::vector<std::string> clauses) {
 	
-	unordered_map<string, string> output;
+	std::unordered_map<std::string, std::string> output;
 	int clausesSize = clauses.size();
 
 	for (int i = 0; i < clausesSize - 1; i++) {
-		string currentClauses = clauses[i];
+		std::string currentClauses = clauses[i];
 		int charSpaceLoc = currentClauses.find_first_of(whitespace);
-		string type = currentClauses.substr(0, charSpaceLoc);
-		string varName = currentClauses.substr(charSpaceLoc);
+		std::string type = currentClauses.substr(0, charSpaceLoc);
+		std::string varName = currentClauses.substr(charSpaceLoc);
 
 		if (varName.find(",") != -1) {
 			char delimiter = ',';
@@ -212,7 +210,7 @@ unordered_map<string, string> QueryParser::splitDeclarations(vector<string> clau
 			int endPoint = varName.find(delimiter);
 
 			while (endPoint != -1) {
-				string varNameSplitted = StringUtil::trim(varName.substr(startPoint, endPoint - startPoint), whitespace);
+				std::string varNameSplitted = StringUtil::trim(varName.substr(startPoint, endPoint - startPoint), whitespace);
 				output.insert(make_pair(varNameSplitted, type));
 				startPoint = endPoint + 1;
 				endPoint = varName.find(delimiter, startPoint);
@@ -232,12 +230,12 @@ unordered_map<string, string> QueryParser::splitDeclarations(vector<string> clau
 Splits select clause by whitespaces.
 Returns a vector<string> consisting of design-entity selected
 */
-vector<string> QueryParser::splitSelectParameter(string selectStatement) {
+std::vector<std::string> QueryParser::splitSelectParameter(std::string selectStatement) {
 	
-	vector<string> output;
+	std::vector<std::string> output;
 
 	int firstSpace = selectStatement.find_first_of(whitespace);
-	string varName = StringUtil::removeAllWhitespaces(selectStatement.substr(firstSpace));
+	std::string varName = StringUtil::removeAllWhitespaces(selectStatement.substr(firstSpace));
 
 	if (varName.find("<") != -1 && varName.find(">") != -1) {
 		varName = varName.substr(1, varName.length() - 2);
@@ -258,25 +256,32 @@ vector<string> QueryParser::splitSelectParameter(string selectStatement) {
 Splits such that clause by open bracket, comma, and close bracket.
 Returns a vector<pair<string, pair<string, string>>> consisting of relation, stmtRef/entRef, stmtRef/entRef
 */
-vector<pair<string, pair<string, string>>> QueryParser::splitSuchThatCondition(vector<string> suchThatClause) {
+std::vector<std::pair<std::string, std::pair<std::string, std::string>>> 
+	QueryParser::splitSuchThatCondition(std::vector<std::string> suchThatClause) {
 	
-	vector<pair<string, pair<string, string>>> output;
+	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> output;
 
 	for(int i = 0; i < suchThatClause.size(); i++) {
 		int openBracket = suchThatClause[i].find("(");
 		int comma = suchThatClause[i].find(",");
 		int closeBracket = suchThatClause[i].find(")");
 		int strLen = suchThatClause[i].length();
-		string condition;
+		std::string condition;
 
 		if (suchThatClause[i].find("such") != -1) {
-			condition = StringUtil::removeAllWhitespaces(suchThatClause[i].substr(9, openBracket - 9));
+			condition =
+				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(9, openBracket - 9));
 		}
 		else {
-			condition = StringUtil::removeAllWhitespaces(suchThatClause[i].substr(3, openBracket - 3));
+			condition =
+				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(3, openBracket - 3));
 		}
-		string firstVar = StringUtil::removeAllWhitespaces(suchThatClause[i].substr(openBracket + 1, comma - openBracket - 1));
-		string secondVar = StringUtil::removeAllWhitespaces(suchThatClause[i].substr(comma + 1, closeBracket - comma - 1));
+		std::string firstVar =
+			StringUtil::removeAllWhitespaces(suchThatClause[i].substr(openBracket + 1,
+																	  comma - openBracket - 1));
+		std::string secondVar =
+			StringUtil::removeAllWhitespaces(suchThatClause[i].substr(comma + 1,
+																	  closeBracket - comma - 1));
 
 		output.push_back(make_pair(condition, make_pair(firstVar, secondVar)));
 	}
@@ -288,26 +293,33 @@ vector<pair<string, pair<string, string>>> QueryParser::splitSuchThatCondition(v
 Splits pattern clause by open bracket, comma, and close bracket.
 Returns a vector<pair<string, pair<string, string>>> consisting of design-entity, entRef, expression-spec
 */
-vector<pair<string, pair<string, string>>> QueryParser::splitPatternCondition(vector<string> patternClause) {
+std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
+	QueryParser::splitPatternCondition(std::vector<std::string> patternClause) {
 	
-	vector<pair<string, pair<string, string>>> output;
+	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> output;
 
 	for (int i = 0; i < patternClause.size(); i++) {
 		int openBracket = patternClause[i].find("(");
 		int comma = patternClause[i].find(",");
 		int closeBracket = patternClause[i].find(")");
 		int strLen = patternClause[i].length();
-		string varName;
+		std::string varName;
 
 		if (patternClause[i].find("pattern") != -1) {
-			varName = StringUtil::removeAllWhitespaces(patternClause[i].substr(7, openBracket - 7));
+			varName =
+				StringUtil::removeAllWhitespaces(patternClause[i].substr(7, openBracket - 7));
 		}
 		else {
-			varName = StringUtil::removeAllWhitespaces(patternClause[i].substr(3, openBracket - 3));
+			varName =
+				StringUtil::removeAllWhitespaces(patternClause[i].substr(3, openBracket - 3));
 		}
 
-		string firstPattern = StringUtil::removeAllWhitespaces(patternClause[i].substr(openBracket + 1, comma - openBracket - 1));
-		string secondPattern = StringUtil::removeAllWhitespaces(patternClause[i].substr(comma + 1, closeBracket - comma - 1));
+		std::string firstPattern =
+			StringUtil::removeAllWhitespaces(patternClause[i].substr(openBracket + 1,
+																	 comma - openBracket - 1));
+		std::string secondPattern =
+			StringUtil::removeAllWhitespaces(patternClause[i].substr(comma + 1,
+																	 closeBracket - comma - 1));
 
 		output.push_back(make_pair(varName, make_pair(firstPattern, secondPattern)));
 	}
@@ -319,14 +331,15 @@ vector<pair<string, pair<string, string>>> QueryParser::splitPatternCondition(ve
 Splits with clause by equal sign.
 Returns a vector<pair<string, string>> consisting of firstRef and secondRef
 */
-vector<pair<string, string>> QueryParser::splitWithCondition(vector<string> withClause) {
+std::vector<std::pair<std::string, std::string>>
+	QueryParser::splitWithCondition(std::vector<std::string> withClause) {
 
-	vector<pair<string, string>> output;
+	std::vector<std::pair<std::string, std::string>> output;
 
 	for (int i = 0; i < withClause.size(); i++) {
 		int equalSign = withClause[i].find("=");
 		int strLen = withClause[i].length();
-		string firstArgs;
+		std::string firstArgs;
 
 		if (withClause[i].find("with") != -1) {
 			firstArgs = StringUtil::removeAllWhitespaces(withClause[i].substr(4, equalSign - 4));
@@ -334,7 +347,8 @@ vector<pair<string, string>> QueryParser::splitWithCondition(vector<string> with
 		else {
 			firstArgs = StringUtil::removeAllWhitespaces(withClause[i].substr(3, equalSign - 3));
 		}
-		string secondArgs = StringUtil::removeAllWhitespaces(withClause[i].substr(equalSign + 1));
+		std::string secondArgs =
+			StringUtil::removeAllWhitespaces(withClause[i].substr(equalSign + 1));
 
 		output.push_back(make_pair(firstArgs, secondArgs));
 	}
@@ -346,18 +360,23 @@ vector<pair<string, string>> QueryParser::splitWithCondition(vector<string> with
 Calls QueryEvaluator to evaluate the query result
 Returns a unordered_set<string> consisting of results
 */
-unordered_set<string> QueryParser::evaluateSelectConditions(unordered_map<string, string> declarations, 
-	vector<string> selectedVar, vector<pair<string, pair<string, string>>> suchThatCondition,
-	vector<pair<string, pair<string, string>>> patternCondition, vector<pair<string, string>> withCondition) {
+std::unordered_set<std::string>
+	QueryParser::evaluateSelectConditions(std::unordered_map<std::string, std::string> declarations,
+										  std::vector<std::string> selectedVar,
+										  std::vector<std::pair<std::string,
+										  std::pair<std::string, std::string>>> suchThatCondition,
+										  std::vector<std::pair<std::string,
+										  std::pair<std::string, std::string>>> patternCondition,
+										  std::vector<std::pair<std::string, std::string>> withCondition) {
 
-	return QueryEvaluator::projectResult(declarations, selectedVar, suchThatCondition, patternCondition,
-		withCondition);
+	return QueryEvaluator::projectResult(declarations, selectedVar, suchThatCondition,
+										 patternCondition, withCondition);
 }
 
 /*
 Get minimum value from the vector args
 */
-int QueryParser::getMinimumValue(vector<int> indexes) {
+int QueryParser::getMinimumValue(std::vector<int> indexes) {
 
 	int minIndex = maxInt;
 	for (int i = 0; i < indexes.size(); i++) {

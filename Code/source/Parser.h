@@ -21,13 +21,13 @@ public:
 
 	Parser();
 
-	int parse(vector<Statement> stmtLst, int parent, string procedure);
+	int parse(std::vector<Statement> stmtLst, int parent, std::string procedure);
 
-	void populateNextEntity(int prevStmtLine, Statement & stmt, int currStmtLine, int parent, string procedure);
+	void populateNextEntity(int prevStmtLine, Statement & stmt, int currStmtLine, int parent, std::string procedure);
 
 private:
 
-	void populateDesignEntities(Statement stmt, string procedure);
+	void populateDesignEntities(Statement stmt, std::string procedure);
 
 	void extractAssignEntity(std::string &stmtString, int stmtLine);
 
@@ -37,13 +37,16 @@ private:
 
 	void extractPrintEntity(std::string & stmtString, int stmtLine);
 
-	void extractWhileEntity(std::string & stmtString, int stmtLine, vector<Statement> stmtLst, std::string procedure);
+	void extractWhileEntity(std::string & stmtString, int stmtLine,
+							std::vector<Statement> stmtLst, std::string procedure);
 
-	void extractIfEntity(std::string & stmtString, int stmtLine, vector<Statement> stmtLst, std::string procedure);
+	void extractIfEntity(std::string & stmtString, int stmtLine,
+						 std::vector<Statement> stmtLst, std::string procedure);
 
-	void extractElseEntity(std::string & stmtString, int stmtLine, vector<Statement> stmtLst, std::string procedure);
+	void extractElseEntity(std::string & stmtString, int stmtLine,
+						   std::vector<Statement> stmtLst, std::string procedure);
 
-	void extractProcedureEntity(std::string & stmtString, vector<Statement> stmtLst);
+	void extractProcedureEntity(std::string & stmtString, std::vector<Statement> stmtLst);
 
 	void populateStmtList(Statement stmt, std::string procedure);
 

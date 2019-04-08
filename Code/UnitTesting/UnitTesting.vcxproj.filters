@@ -21,60 +21,96 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PKB\ParentStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKB\FollowStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKB\UseStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKB\ModifyStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKB\CallStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PKB\NextStorageStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QueryParserTest.cpp">
+    <ClCompile Include="PQL\QueryValidatorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LexicalTokenTest.cpp">
+    <ClCompile Include="PQL\QueryParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AssignParserTest.cpp">
+    <ClCompile Include="Parser\ReadParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StatementTest.cpp">
+    <ClCompile Include="Parser\procedureParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="procedureParserTest.cpp">
+    <ClCompile Include="Parser\PrintParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExpressionUtilTest.cpp">
+    <ClCompile Include="Parser\AssignParserTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConditionalExpTest.cpp">
+    <ClCompile Include="PreProcessor\PreprocessorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PrintParserTest.cpp">
+    <ClCompile Include="PreProcessor\StatementTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReadParserTest.cpp">
+    <ClCompile Include="PKB\FollowStorageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QueryValidatorTest.cpp">
+    <ClCompile Include="Utility\ConditionalExpTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ContainerUtilTest.cpp">
+    <ClCompile Include="Utility\ContainerUtilTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PreprocessorTest.cpp">
+    <ClCompile Include="Utility\ExpressionUtilTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NextStartTest.cpp">
+    <ClCompile Include="Utility\LexicalTokenTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CallParserTest.cpp">
+    <ClCompile Include="PKB\ParentStorageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DesignExtractorTest.cpp">
+    <ClCompile Include="PKB\UseStorageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OptimizerUtilityTest.cpp">
+    <ClCompile Include="PKB\ModifyStorageTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OptimizerTest.cpp">
+    <ClCompile Include="Parser\CallParserTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DesignExtractor\DesignExtractorTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\OptimizerUtilityTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PQL\OptimizerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PKB\CallStorageTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PKB\NextStorageTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DesignExtractor\NextStarTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

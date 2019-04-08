@@ -1,13 +1,13 @@
-#include "ControlVariableStorage.h"
+#include "CtrlVarStorage.h"
 
-std::unordered_map<std::string, std::unordered_set<int>> ControlVariableStorage::ifVariableToStm;
-std::unordered_map<std::string, std::unordered_set<int>> ControlVariableStorage::whileVariableToStm;
+std::unordered_map<std::string, std::unordered_set<int>> CtrlVarStorage::ifVariableToStm;
+std::unordered_map<std::string, std::unordered_set<int>> CtrlVarStorage::whileVariableToStm;
 
-ControlVariableStorage::ControlVariableStorage() {
+CtrlVarStorage::CtrlVarStorage() {
 
 }
 
-void ControlVariableStorage::addIfControlVariable(int stm, string variable) {
+void CtrlVarStorage::addIfControlVariable(int stm, std::string variable) {
 
 	//if cannot find key
 	if (ifVariableToStm.find(variable) == ifVariableToStm.end()) {
@@ -21,7 +21,7 @@ void ControlVariableStorage::addIfControlVariable(int stm, string variable) {
 	}
 }
 
-void ControlVariableStorage::addWhileControlVariable(int stm, string variable) {
+void CtrlVarStorage::addWhileControlVariable(int stm, std::string variable) {
 
 	//If cannot find key
 	if (whileVariableToStm.find(variable) == whileVariableToStm.end()) {
@@ -35,7 +35,7 @@ void ControlVariableStorage::addWhileControlVariable(int stm, string variable) {
 	}
 }
 
-std::unordered_set<int> ControlVariableStorage::getAllIfWithControls() {
+std::unordered_set<int> CtrlVarStorage::getAllIfWithControls() {
 	std::unordered_set<int> result;
 
 	for (std::pair<std::string, std::unordered_set<int>> pair : ifVariableToStm) {
@@ -47,7 +47,7 @@ std::unordered_set<int> ControlVariableStorage::getAllIfWithControls() {
 
 }
 
-std::unordered_set<int> ControlVariableStorage::getAllWhileWithControls() {
+std::unordered_set<int> CtrlVarStorage::getAllWhileWithControls() {
 	std::unordered_set<int> result;
 
 	for (std::pair<std::string, std::unordered_set<int>> pair : whileVariableToStm) {
@@ -59,19 +59,19 @@ std::unordered_set<int> ControlVariableStorage::getAllWhileWithControls() {
 
 }
 
-std::unordered_set<int> ControlVariableStorage::getIfStmWithControlVariable(std::string variable) {
+std::unordered_set<int> CtrlVarStorage::getIfStmWithControlVariable(std::string variable) {
 
 	return ifVariableToStm[variable];
 
 }
 
-std::unordered_set<int> ControlVariableStorage::getWhileStmWithControlVariable(std::string variable) {
+std::unordered_set<int> CtrlVarStorage::getWhileStmWithControlVariable(std::string variable) {
 
 	return whileVariableToStm[variable];
 
 }
 
-std::unordered_set<std::pair<int, std::string>, intStringhash> ControlVariableStorage::getIfStmControlVariablePair() {
+std::unordered_set<std::pair<int, std::string>, intStringhash> CtrlVarStorage::getIfStmControlVariablePair() {
 
 	std::unordered_set<std::pair<int, std::string>, intStringhash> result;
 
@@ -83,7 +83,7 @@ std::unordered_set<std::pair<int, std::string>, intStringhash> ControlVariableSt
 	return result;
 }
 
-std::unordered_set<std::pair<int, std::string>, intStringhash> ControlVariableStorage::getWhileStmControlVariablePair()
+std::unordered_set<std::pair<int, std::string>, intStringhash> CtrlVarStorage::getWhileStmControlVariablePair()
 {
 	std::unordered_set<std::pair<int, std::string>, intStringhash> result;
 

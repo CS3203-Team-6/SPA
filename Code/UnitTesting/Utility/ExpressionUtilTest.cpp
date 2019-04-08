@@ -3,7 +3,6 @@
 #include "ExpressionUtil.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace ExpressionUtil;
 
 namespace UnitTesting
 {

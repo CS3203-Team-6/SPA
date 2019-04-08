@@ -16,7 +16,7 @@
     <ClCompile Include="..\source\CallStorage.cpp" />
     <ClCompile Include="..\source\ConditionalExp.cpp" />
     <ClCompile Include="..\source\ContainerUtil.cpp" />
-    <ClCompile Include="..\source\ControlVariableStorage.cpp" />
+    <ClCompile Include="..\source\CtrlVarStorage.cpp" />
     <ClCompile Include="..\source\DesignExtractor.cpp" />
     <ClCompile Include="..\source\ElseParser.cpp" />
     <ClCompile Include="..\source\ExpressionUtil.cpp" />
@@ -49,7 +49,7 @@
     <ClInclude Include="..\source\CallStorage.h" />
     <ClInclude Include="..\source\ConditionalExp.h" />
     <ClInclude Include="..\source\ContainerUtil.h" />
-    <ClInclude Include="..\source\ControlVariableStorage.h" />
+    <ClInclude Include="..\source\CtrlVarStorage.h" />
     <ClInclude Include="..\source\DesignExtractor.h" />
     <ClInclude Include="..\source\ElseParser.h" />
     <ClInclude Include="..\source\ExpressionUtil.h" />

@@ -1,69 +1,69 @@
 #include "UseStorage.h"
 
-unordered_set<pair<int, string>, intStringhash> UseStorage::stmVarPairList;
-unordered_set<pair<string, string>, strPairhash> UseStorage::procVarPairList;
-unordered_map<int, unordered_set<string> > UseStorage::stmToVarMap;
-unordered_map<string, unordered_set<string> > UseStorage::procToVarMap;
-unordered_map<string, unordered_set<int> > UseStorage::varToStmMap;
-unordered_map<string, unordered_set<string> > UseStorage::varToProcMap;
+std::unordered_set<std::pair<int, std::string>, intStringhash> UseStorage::stmVarPairList;
+std::unordered_set<std::pair<std::string, std::string>, strPairhash> UseStorage::procVarPairList;
+std::unordered_map<int, std::unordered_set<std::string> > UseStorage::stmToVarMap;
+std::unordered_map<std::string, std::unordered_set<std::string> > UseStorage::procToVarMap;
+std::unordered_map<std::string, std::unordered_set<int> > UseStorage::varToStmMap;
+std::unordered_map<std::string, std::unordered_set<std::string> > UseStorage::varToProcMap;
 
 UseStorage::UseStorage()
 {
 }
 
-bool UseStorage::addUsesStm(int stm, string variable)
+bool UseStorage::addUsesStm(int stm, std::string variable)
 {
-	if (!stmVarPairList.emplace(pair<int, string>(stm, variable)).second)
+	if (!stmVarPairList.emplace(std::pair<int, std::string>(stm, variable)).second)
 	{
 		return false;
 	}
-	if (!stmToVarMap.emplace(stm, unordered_set<string>{ variable }).second)
+	if (!stmToVarMap.emplace(stm, std::unordered_set<std::string>{ variable }).second)
 	{
 		stmToVarMap.at(stm).emplace(variable);
 	}
-	if (!varToStmMap.emplace(variable, unordered_set<int>{ stm }).second)
+	if (!varToStmMap.emplace(variable, std::unordered_set<int>{ stm }).second)
 	{
 		varToStmMap.at(variable).emplace(stm);
 	}
-	if (!varToStmMap.emplace("", unordered_set<int>{ stm }).second)
+	if (!varToStmMap.emplace("", std::unordered_set<int>{ stm }).second)
 	{
 		varToStmMap.at("").emplace(stm);
 	}
 	return true;
 }
 
-bool UseStorage::addUsesProc(string procedure, string variable)
+bool UseStorage::addUsesProc(std::string procedure, std::string variable)
 {
-	if (!procVarPairList.emplace(pair<string, string>(procedure, variable)).second)
+	if (!procVarPairList.emplace(std::pair<std::string, std::string>(procedure, variable)).second)
 	{
 		return false;
 	}
-	if (!procToVarMap.emplace(procedure, unordered_set<string>{ variable }).second)
+	if (!procToVarMap.emplace(procedure, std::unordered_set<std::string>{ variable }).second)
 	{
 		procToVarMap.at(procedure).emplace(variable);
 	}
-	if (!varToProcMap.emplace(variable, unordered_set<string>{ procedure }).second)
+	if (!varToProcMap.emplace(variable, std::unordered_set<std::string>{ procedure }).second)
 	{
 		varToProcMap.at(variable).emplace(procedure);
 	}
-	if (!varToProcMap.emplace("", unordered_set<string>{ procedure }).second)
+	if (!varToProcMap.emplace("", std::unordered_set<std::string>{ procedure }).second)
 	{
 		varToProcMap.at("").emplace(procedure);
 	}
 	return true;
 }
 
-bool UseStorage::containsStmVarPair(pair<int, string> pair)
+bool UseStorage::containsStmVarPair(std::pair<int, std::string> pair)
 {
 	return stmVarPairList.find(pair) != stmVarPairList.end();
 }
 
-bool UseStorage::containsProcVarPair(pair<string, string> pair)
+bool UseStorage::containsProcVarPair(std::pair<std::string, std::string> pair)
 {
 	return procVarPairList.find(pair) != procVarPairList.end();
 }
 
-unordered_set<string> UseStorage::getVarUsedByStm(int stm)
+std::unordered_set<std::string> UseStorage::getVarUsedByStm(int stm)
 {
 	if (stmToVarMap.find(stm) != stmToVarMap.end())
 	{
@@ -72,7 +72,7 @@ unordered_set<string> UseStorage::getVarUsedByStm(int stm)
 	return {};
 }
 
-unordered_set<string> UseStorage::getVarUsedByProc(string procedure)
+std::unordered_set<std::string> UseStorage::getVarUsedByProc(std::string procedure)
 {
 	if (procToVarMap.find(procedure) != procToVarMap.end())
 	{
@@ -81,7 +81,7 @@ unordered_set<string> UseStorage::getVarUsedByProc(string procedure)
 	return {};
 }
 
-unordered_set<int> UseStorage::getStmUsing(string variable)
+std::unordered_set<int> UseStorage::getStmUsing(std::string variable)
 {
 	if (varToStmMap.find(variable) != varToStmMap.end())
 	{
@@ -90,7 +90,7 @@ unordered_set<int> UseStorage::getStmUsing(string variable)
 	return {};
 }
 
-unordered_set<string> UseStorage::getProcUsing(string variable)
+std::unordered_set<std::string> UseStorage::getProcUsing(std::string variable)
 {
 	if (varToProcMap.find(variable) != varToProcMap.end())
 	{
@@ -99,12 +99,12 @@ unordered_set<string> UseStorage::getProcUsing(string variable)
 	return {};
 }
 
-unordered_set<pair<int, string>, intStringhash> UseStorage::getStmVarPairs()
+std::unordered_set<std::pair<int, std::string>, intStringhash> UseStorage::getStmVarPairs()
 {
 	return stmVarPairList;
 }
 
-unordered_set<pair<string, string>, strPairhash> UseStorage::getProcVarPairs()
+std::unordered_set<std::pair<std::string, std::string>, strPairhash> UseStorage::getProcVarPairs()
 {
 	return procVarPairList;
 }

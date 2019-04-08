@@ -4,8 +4,6 @@
 #include <unordered_set>
 #include <utility>
 
-using namespace std;
-
 #include "Hasher.h"
 
 /*
@@ -15,8 +13,8 @@ using namespace std;
 */
 struct nRelationships
 {
-	unordered_set<int> next;
-	unordered_set<int> previous;
+	std::unordered_set<int> next;
+	std::unordered_set<int> previous;
 };
 
 /*
@@ -39,28 +37,28 @@ public:
 		return a list of program lines that can be executed after 'line'
 		return {} if 'line' is not found
 	*/
-	unordered_set<int> getNext(int line);
+	std::unordered_set<int> getNext(int line);
 
 	/*
 		return a list of program lines that can be executed before 'line'
 		return {} if 'line' is not found
 	*/
-	unordered_set<int> getPrev(int line);
+	std::unordered_set<int> getPrev(int line);
 
 	// returns a list of all program lines that is executed after another
-	unordered_set<int> getAllNext();
+	std::unordered_set<int> getAllNext();
 
 	// returns a list of all program lines that is before after another
-	unordered_set<int> getAllPrev();
+	std::unordered_set<int> getAllPrev();
 
 	// returns a list of all next pairs
-	unordered_set< pair<int, int>, intPairhash> getNextPairs();
+	std::unordered_set< std::pair<int, int>, intPairhash> getNextPairs();
 
 	// empty the entire storage
 	void erase();
 private:
-	static unordered_map<int, nRelationships> nextTable;
-	static unordered_set< pair<int, int>, intPairhash> nextPairList;
-	static unordered_set<int> nextList;
-	static unordered_set<int> prevList;
+	static std::unordered_map<int, nRelationships> nextTable;
+	static std::unordered_set< std::pair<int, int>, intPairhash> nextPairList;
+	static std::unordered_set<int> nextList;
+	static std::unordered_set<int> prevList;
 };

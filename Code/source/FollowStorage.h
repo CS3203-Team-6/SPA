@@ -4,8 +4,6 @@
 #include <unordered_set>
 #include <utility>
 
-using namespace std;
-
 #include "Hasher.h"
 
 /* 
@@ -19,8 +17,8 @@ struct fRelationships
 {
 	int followed;
 	int follower;
-	unordered_set<int> allFollowed;
-	unordered_set<int> allFollowers;
+	std::unordered_set<int> allFollowed;
+	std::unordered_set<int> allFollowers;
 };
 
 /*
@@ -43,20 +41,20 @@ public:
 		Each followed - follower pair is entered into followStarPairList
 		If 'followed' already has a list of followers, it is not replaced and it return false
 	*/
-	bool setAllFollowing(int followed, unordered_set<int> followers);
+	bool setAllFollowing(int followed, std::unordered_set<int> followers);
 
 	/*
 		Sets "allFollowed" of 'follower'
 		Each followed - follower pair is entered into followStarPairList
 		If 'follower' already has a list of followed, it is not replaced and it return false
 	*/
-	bool setAllFollowedBy(int follower, unordered_set<int> followed);
+	bool setAllFollowedBy(int follower, std::unordered_set<int> followed);
 
 	// returns true if followTable is empty
 	bool isEmpty();
 
 	// returns true if the specified follows* pair is found
-	bool hasFollowStarPair(pair<int, int> pair);
+	bool hasFollowStarPair(std::pair<int, int> pair);
 
 	/*
 		return the statement following 'stm'
@@ -74,33 +72,33 @@ public:
 		return a list of statements that is directly/indirectly following 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<int> getAllFollowing(int stm);
+	std::unordered_set<int> getAllFollowing(int stm);
 
 	/*
 		return a list of statements that is directly/indirectly followed by 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<int> getAllFollowedBy(int stm);
+	std::unordered_set<int> getAllFollowedBy(int stm);
 
 	// returns a list of all statements that follows another
-	unordered_set<int> getAllFollowers();
+	std::unordered_set<int> getAllFollowers();
 
 	// returns a list of all statements that is followed by another
-	unordered_set<int> getAllFollowed();
+	std::unordered_set<int> getAllFollowed();
 
 	// returns a list of all follows pairs
-	unordered_set< pair<int, int>, intPairhash> getFollowPairs();
+	std::unordered_set< std::pair<int, int>, intPairhash> getFollowPairs();
 
 	// returns a list of all follows* pairs
-	unordered_set< pair<int, int>, intPairhash> getFollowStarPairs();
+	std::unordered_set< std::pair<int, int>, intPairhash> getFollowStarPairs();
 
 	// empty the entire storage
 	void erase();
 
 private:
-	static unordered_map<int, fRelationships> followTable;
-	static unordered_set< pair<int, int>, intPairhash> followPairList;
-	static unordered_set< pair<int, int>, intPairhash> followStarPairList;
-	static unordered_set<int> followerList;
-	static unordered_set<int> followedList;
+	static std::unordered_map<int, fRelationships> followTable;
+	static std::unordered_set< std::pair<int, int>, intPairhash> followPairList;
+	static std::unordered_set< std::pair<int, int>, intPairhash> followStarPairList;
+	static std::unordered_set<int> followerList;
+	static std::unordered_set<int> followedList;
 };

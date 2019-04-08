@@ -1,26 +1,26 @@
 #include "CallStorage.h"
 
-unordered_map<string, cRelationships> CallStorage::callTable;
-unordered_set< pair<string, string>, strPairhash> CallStorage::callPairList;
-unordered_set< pair<string, string>, strPairhash> CallStorage::callStarPairList;
-unordered_set<string> CallStorage::callerList;
-unordered_set<string> CallStorage::calleeList;
-unordered_map<int, string> CallStorage::stmToProcMap;
-unordered_map<string, unordered_set<int>> CallStorage::procToStmMap;
-unordered_set< pair<int, string>, intStringhash> CallStorage::stmProcCallPairList;
+std::unordered_map<std::string, cRelationships> CallStorage::callTable;
+std::unordered_set< std::pair<std::string, std::string>, strPairhash> CallStorage::callPairList;
+std::unordered_set< std::pair<std::string, std::string>, strPairhash> CallStorage::callStarPairList;
+std::unordered_set<std::string> CallStorage::callerList;
+std::unordered_set<std::string> CallStorage::calleeList;
+std::unordered_map<int, std::string> CallStorage::stmToProcMap;
+std::unordered_map<std::string, std::unordered_set<int>> CallStorage::procToStmMap;
+std::unordered_set< std::pair<int, std::string>, intStringhash> CallStorage::stmProcCallPairList;
 
 CallStorage::CallStorage()
 {
 }
 
-void CallStorage::addCall(string caller, string callee, int stm)
+void CallStorage::addCall(std::string caller, std::string callee, int stm)
 {
 	// add Stm - Proc Pair
-	stmProcCallPairList.emplace(pair<int, string>(stm, callee));
+	stmProcCallPairList.emplace(std::pair<int, std::string>(stm, callee));
 	stmToProcMap.emplace(stm, callee);
 
 	// add Call Pair
-	callPairList.emplace(pair<string, string>(caller, callee));
+	callPairList.emplace(std::pair<std::string, std::string>(caller, callee));
 
 	// if callee exist in callTable
 	if (!callTable.emplace(callee, cRelationships{ {caller}, {}, {}, {} }).second)
@@ -29,7 +29,7 @@ void CallStorage::addCall(string caller, string callee, int stm)
 	}
 
 	// if callee exist in procToStmMap
-	if (!procToStmMap.emplace(callee, unordered_set<int>{ stm }).second)
+	if (!procToStmMap.emplace(callee, std::unordered_set<int>{ stm }).second)
 	{
 		procToStmMap.find(callee)->second.emplace(stm);
 	}
@@ -44,7 +44,7 @@ void CallStorage::addCall(string caller, string callee, int stm)
 	calleeList.emplace(callee);
 }
 
-bool CallStorage::setCallAnc(string callee, unordered_set<string> callAnc)
+bool CallStorage::setCallAnc(std::string callee, std::unordered_set<std::string> callAnc)
 {
 	if (callTable.find(callee)->second.callAnc.size() != 0)
 	{
@@ -55,12 +55,12 @@ bool CallStorage::setCallAnc(string callee, unordered_set<string> callAnc)
 
 	for (auto itr = callAnc.cbegin(); itr != callAnc.cend(); ++itr)
 	{
-		callStarPairList.emplace(pair<string, string>(*itr, callee));
+		callStarPairList.emplace(std::pair<std::string, std::string>(*itr, callee));
 	}
 	return true;
 }
 
-bool CallStorage::setCallDesc(string caller, unordered_set<string> callDesc)
+bool CallStorage::setCallDesc(std::string caller, std::unordered_set<std::string> callDesc)
 {
 	if (callTable.find(caller)->second.callDesc.size() != 0)
 	{
@@ -71,7 +71,7 @@ bool CallStorage::setCallDesc(string caller, unordered_set<string> callDesc)
 
 	for (auto itr = callDesc.cbegin(); itr != callDesc.cend(); ++itr)
 	{
-		callStarPairList.emplace(pair<string, string>(caller, *itr));
+		callStarPairList.emplace(std::pair<std::string, std::string>(caller, *itr));
 	}
 	return true;
 }
@@ -81,22 +81,22 @@ bool CallStorage::isEmpty()
 	return callTable.size() == 0;
 }
 
-bool CallStorage::hasCallStarPair(pair<string, string> pair)
+bool CallStorage::hasCallStarPair(std::pair<std::string, std::string> pair)
 {
 	return callStarPairList.find(pair) != callStarPairList.end();
 }
 
-bool CallStorage::isCaller(string procedure)
+bool CallStorage::isCaller(std::string procedure)
 {
 	return callerList.find(procedure) != callerList.end();
 }
 
-bool CallStorage::isCallee(string procedure)
+bool CallStorage::isCallee(std::string procedure)
 {
 	return calleeList.find(procedure) != calleeList.end();
 }
 
-unordered_set<string> CallStorage::getCaller(string procedure)
+std::unordered_set<std::string> CallStorage::getCaller(std::string procedure)
 {
 	if (callTable.find(procedure) != callTable.end())
 	{
@@ -105,7 +105,7 @@ unordered_set<string> CallStorage::getCaller(string procedure)
 	return {};
 }
 
-unordered_set<string> CallStorage::getCallee(string procedure)
+std::unordered_set<std::string> CallStorage::getCallee(std::string procedure)
 {
 	if (callTable.find(procedure) != callTable.end())
 	{
@@ -114,7 +114,7 @@ unordered_set<string> CallStorage::getCallee(string procedure)
 	return {};
 }
 
-unordered_set<string> CallStorage::getCallAnc(string procedure)
+std::unordered_set<std::string> CallStorage::getCallAnc(std::string procedure)
 {
 	if (callTable.find(procedure) != callTable.end())
 	{
@@ -123,7 +123,7 @@ unordered_set<string> CallStorage::getCallAnc(string procedure)
 	return {};
 }
 
-unordered_set<string> CallStorage::getCallDesc(string procedure)
+std::unordered_set<std::string> CallStorage::getCallDesc(std::string procedure)
 {
 	if (callTable.find(procedure) != callTable.end())
 	{
@@ -132,27 +132,27 @@ unordered_set<string> CallStorage::getCallDesc(string procedure)
 	return {};
 }
 
-unordered_set<string> CallStorage::getAllCallees()
+std::unordered_set<std::string> CallStorage::getAllCallees()
 {
 	return calleeList;
 }
 
-unordered_set<string> CallStorage::getAllCallers()
+std::unordered_set<std::string> CallStorage::getAllCallers()
 {
 	return callerList;
 }
 
-unordered_set<pair<string, string>, strPairhash> CallStorage::getCallPairs()
+std::unordered_set<std::pair<std::string, std::string>, strPairhash> CallStorage::getCallPairs()
 {
 	return callPairList;
 }
 
-unordered_set<pair<string, string>, strPairhash> CallStorage::getCallStarPairs()
+std::unordered_set<std::pair<std::string, std::string>, strPairhash> CallStorage::getCallStarPairs()
 {
 	return callStarPairList;
 }
 
-string CallStorage::getProcCalledBy(int stm)
+std::string CallStorage::getProcCalledBy(int stm)
 {
 	if (stmToProcMap.find(stm) != stmToProcMap.end())
 	{
@@ -161,7 +161,7 @@ string CallStorage::getProcCalledBy(int stm)
 	return "";
 }
 
-unordered_set<int> CallStorage::getStmCalling(string procedure)
+std::unordered_set<int> CallStorage::getStmCalling(std::string procedure)
 {
 	if (procToStmMap.find(procedure) != procToStmMap.end())
 	{
@@ -170,7 +170,7 @@ unordered_set<int> CallStorage::getStmCalling(string procedure)
 	return {};
 }
 
-unordered_set<pair<int, string>, intStringhash> CallStorage::getStmProcCallPairs()
+std::unordered_set<std::pair<int, std::string>, intStringhash> CallStorage::getStmProcCallPairs()
 {
 	return stmProcCallPairList;
 }

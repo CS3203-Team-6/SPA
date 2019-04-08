@@ -4,8 +4,6 @@
 #include <unordered_set>
 #include <utility>
 
-using namespace std;
-
 #include "Hasher.h"
 
 /*
@@ -18,9 +16,9 @@ using namespace std;
 struct pRelationships
 {
 	int parent;
-	unordered_set<int> children;
-	unordered_set<int> ancestors;
-	unordered_set<int> descendants;
+	std::unordered_set<int> children;
+	std::unordered_set<int> ancestors;
+	std::unordered_set<int> descendants;
 };
 
 /*
@@ -42,14 +40,14 @@ public:
 		Each ancestor - descendant pair is entered into anc_DescPairList
 		If 'descendant' already has a list of ancestors, it is not replaced and it return false
 	*/
-	bool setAncestors(int descendant, unordered_set<int> ancestors);
+	bool setAncestors(int descendant, std::unordered_set<int> ancestors);
 
 	/*
 		Sets "descendants" of 'ancestor'
 		Each ancestor - descendant pair is entered into anc_DescPairList
 		If 'ancestor' already has a list of descendants, it is not replaced and it return false
 	*/
-	bool setDescendants(int ancestor, unordered_set<int> descendants);
+	bool setDescendants(int ancestor, std::unordered_set<int> descendants);
 
 	// return true if parentTable is empty
 	bool isEmpty();
@@ -61,7 +59,7 @@ public:
 	bool isChild(int stm);
 
 	// returns true if the specified parent* pair is found
-	bool hasAncDescPair(pair<int, int> pair);
+	bool hasAncDescPair(std::pair<int, int> pair);
 
 	/*
 		return the statement that is the parent of 'stm'
@@ -73,39 +71,39 @@ public:
 		return the list of statements that is the children of 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<int> getChildren(int stm);
+	std::unordered_set<int> getChildren(int stm);
 
 	/*
 		return the list of statements that is the ancestor of 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<int> getAncestors(int stm);
+	std::unordered_set<int> getAncestors(int stm);
 
 	/*
 		return the list of statements that is the descendants of 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<int> getDescendants(int stm);
+	std::unordered_set<int> getDescendants(int stm);
 
 	// returns a list of all statements that is the parent of another
-	unordered_set<int> getAllParent();
+	std::unordered_set<int> getAllParent();
 
 	// returns a list of all statements that is the child of another
-	unordered_set<int> getAllChildren();
+	std::unordered_set<int> getAllChildren();
 
 	// returns a list of all parent pairs
-	unordered_set< pair<int, int>, intPairhash> getParentChildPairs();
+	std::unordered_set< std::pair<int, int>, intPairhash> getParentChildPairs();
 
 	// returns a list of all parent* pairs
-	unordered_set< pair<int, int>, intPairhash> getAncDescPair();
+	std::unordered_set< std::pair<int, int>, intPairhash> getAncDescPair();
 
 	// empty the entire storage
 	void erase();
 
 private:
-	static unordered_map<int, pRelationships> parentTable;
-	static unordered_set< pair<int, int>, intPairhash> parent_ChildPairList;
-	static unordered_set< pair<int, int>, intPairhash> anc_DescPairList;
-	static unordered_set<int> parentList;
-	static unordered_set<int> childrenList;
+	static std::unordered_map<int, pRelationships> parentTable;
+	static std::unordered_set< std::pair<int, int>, intPairhash> parent_ChildPairList;
+	static std::unordered_set< std::pair<int, int>, intPairhash> anc_DescPairList;
+	static std::unordered_set<int> parentList;
+	static std::unordered_set<int> childrenList;
 };

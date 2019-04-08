@@ -9,8 +9,6 @@
 
 #include "Statement.h"
 
-using namespace std;
-
 /**** Usage guide
   Preprocessor will contain:
   (1) validate(...): the validator methods to validate statement types (used mainly for testing)

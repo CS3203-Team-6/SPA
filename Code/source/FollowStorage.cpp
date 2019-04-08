@@ -1,10 +1,10 @@
 #include "FollowStorage.h"
 
-unordered_map<int, fRelationships> FollowStorage::followTable;
-unordered_set< pair<int, int>, intPairhash> FollowStorage::followPairList;
-unordered_set< pair<int, int>, intPairhash> FollowStorage::followStarPairList;
-unordered_set<int> FollowStorage::followerList;
-unordered_set<int> FollowStorage::followedList;
+std::unordered_map<int, fRelationships> FollowStorage::followTable;
+std::unordered_set< std::pair<int, int>, intPairhash> FollowStorage::followPairList;
+std::unordered_set< std::pair<int, int>, intPairhash> FollowStorage::followStarPairList;
+std::unordered_set<int> FollowStorage::followerList;
+std::unordered_set<int> FollowStorage::followedList;
 
 FollowStorage::FollowStorage()
 {
@@ -13,7 +13,7 @@ FollowStorage::FollowStorage()
 bool FollowStorage::addFollow(int followed, int follower)
 {
 	// if follows Pair is already added
-	if (!followPairList.emplace(pair<int, int>(followed, follower)).second)
+	if (!followPairList.emplace(std::pair<int, int>(followed, follower)).second)
 	{
 		return false;
 	}
@@ -21,14 +21,14 @@ bool FollowStorage::addFollow(int followed, int follower)
 	if (followTable.find(followed) != followTable.end() &&
 		followTable.find(followed)->second.follower != 0)
 	{
-		followPairList.erase(pair<int, int>(followed, follower));
+		followPairList.erase(std::pair<int, int>(followed, follower));
 		return false;
 	}
 
 	if (followTable.find(follower) != followTable.end() &&
 		followTable.find(follower)->second.followed != 0)
 	{
-		followPairList.erase(pair<int, int>(followed, follower));
+		followPairList.erase(std::pair<int, int>(followed, follower));
 		return false;
 	}
 
@@ -49,7 +49,7 @@ bool FollowStorage::addFollow(int followed, int follower)
 	return true;
 }
 
-bool FollowStorage::setAllFollowing(int followed, unordered_set<int> followers)
+bool FollowStorage::setAllFollowing(int followed, std::unordered_set<int> followers)
 {
 	if (followTable.find(followed)->second.allFollowers.size() != 0)
 	{
@@ -60,12 +60,12 @@ bool FollowStorage::setAllFollowing(int followed, unordered_set<int> followers)
 
 	for (auto itr = followers.cbegin(); itr != followers.cend(); ++itr)
 	{
-		followStarPairList.emplace(pair<int, int>(followed, *itr));
+		followStarPairList.emplace(std::pair<int, int>(followed, *itr));
 	}
 	return true;
 }
 
-bool FollowStorage::setAllFollowedBy(int follower, unordered_set<int> followed)
+bool FollowStorage::setAllFollowedBy(int follower, std::unordered_set<int> followed)
 {
 	if (followTable.find(follower)->second.allFollowed.size() != 0)
 	{
@@ -76,7 +76,7 @@ bool FollowStorage::setAllFollowedBy(int follower, unordered_set<int> followed)
 
 	for (auto itr = followed.cbegin(); itr != followed.cend(); ++itr)
 	{
-		followStarPairList.emplace(pair<int, int>(*itr, follower));
+		followStarPairList.emplace(std::pair<int, int>(*itr, follower));
 	}
 	return true;
 }
@@ -86,7 +86,7 @@ bool FollowStorage::isEmpty()
 	return followTable.size() == 0;
 }
 
-bool FollowStorage::hasFollowStarPair(pair<int, int> pair)
+bool FollowStorage::hasFollowStarPair(std::pair<int, int> pair)
 {
 	return followStarPairList.find(pair) != followStarPairList.end();
 }
@@ -109,7 +109,7 @@ int FollowStorage::getStmFollowedBy(int stm)
 	return 0;
 }
 
-unordered_set<int> FollowStorage::getAllFollowing(int stm)
+std::unordered_set<int> FollowStorage::getAllFollowing(int stm)
 {
 	if (followTable.find(stm) != followTable.end())
 	{
@@ -118,7 +118,7 @@ unordered_set<int> FollowStorage::getAllFollowing(int stm)
 	return {};
 }
 
-unordered_set<int> FollowStorage::getAllFollowedBy(int stm)
+std::unordered_set<int> FollowStorage::getAllFollowedBy(int stm)
 {
 	if (followTable.find(stm) != followTable.end())
 	{
@@ -127,22 +127,22 @@ unordered_set<int> FollowStorage::getAllFollowedBy(int stm)
 	return {};
 }
 
-unordered_set<int> FollowStorage::getAllFollowers()
+std::unordered_set<int> FollowStorage::getAllFollowers()
 {
 	return followerList;
 }
 
-unordered_set<int> FollowStorage::getAllFollowed()
+std::unordered_set<int> FollowStorage::getAllFollowed()
 {
 	return followedList;
 }
 
-unordered_set<pair<int, int>, intPairhash> FollowStorage::getFollowPairs()
+std::unordered_set<std::pair<int, int>, intPairhash> FollowStorage::getFollowPairs()
 {
 	return followPairList;
 }
 
-unordered_set<pair<int, int>, intPairhash> FollowStorage::getFollowStarPairs()
+std::unordered_set<std::pair<int, int>, intPairhash> FollowStorage::getFollowStarPairs()
 {
 	return followStarPairList;
 }

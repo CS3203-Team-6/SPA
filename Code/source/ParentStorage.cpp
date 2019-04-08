@@ -1,10 +1,10 @@
 #include "ParentStorage.h"
 
-unordered_map<int, pRelationships> ParentStorage::parentTable;
-unordered_set< pair<int, int>, intPairhash> ParentStorage::parent_ChildPairList;
-unordered_set< pair<int, int>, intPairhash> ParentStorage::anc_DescPairList;
-unordered_set<int> ParentStorage::parentList;
-unordered_set<int> ParentStorage::childrenList;
+std::unordered_map<int, pRelationships> ParentStorage::parentTable;
+std::unordered_set< std::pair<int, int>, intPairhash> ParentStorage::parent_ChildPairList;
+std::unordered_set< std::pair<int, int>, intPairhash> ParentStorage::anc_DescPairList;
+std::unordered_set<int> ParentStorage::parentList;
+std::unordered_set<int> ParentStorage::childrenList;
 
 ParentStorage::ParentStorage()
 {
@@ -13,7 +13,7 @@ ParentStorage::ParentStorage()
 bool ParentStorage::addParent_Child(int parent, int child)
 {
 	// if Parent-Child Pair is already added
-	if (!parent_ChildPairList.emplace(pair<int, int>(parent, child)).second)
+	if (!parent_ChildPairList.emplace(std::pair<int, int>(parent, child)).second)
 	{
 		return false;
 	}
@@ -22,7 +22,7 @@ bool ParentStorage::addParent_Child(int parent, int child)
 	auto itrpr = parentTable.emplace(child, pRelationships{ parent, {}, {}, {} });
 	if (!itrpr.second && parentTable.find(child)->second.parent != 0)
 	{
-		parent_ChildPairList.erase(pair<int, int>(parent, child));
+		parent_ChildPairList.erase(std::pair<int, int>(parent, child));
 		return false;
 	}
 	else if (!itrpr.second)		// if child exist but does not have parent initialized
@@ -41,7 +41,7 @@ bool ParentStorage::addParent_Child(int parent, int child)
 	return true;
 }
 
-bool ParentStorage::setAncestors(int descendant, unordered_set<int> ancestors)
+bool ParentStorage::setAncestors(int descendant, std::unordered_set<int> ancestors)
 {
 	if (parentTable.find(descendant)->second.ancestors.size() != 0)
 	{
@@ -51,12 +51,12 @@ bool ParentStorage::setAncestors(int descendant, unordered_set<int> ancestors)
 
 	for (auto itr = ancestors.cbegin(); itr != ancestors.cend(); ++itr)
 	{
-		anc_DescPairList.emplace(pair<int, int>(*itr, descendant));
+		anc_DescPairList.emplace(std::pair<int, int>(*itr, descendant));
 	}
 	return true;
 }
 
-bool ParentStorage::setDescendants(int ancestor, unordered_set<int> descendants)
+bool ParentStorage::setDescendants(int ancestor, std::unordered_set<int> descendants)
 {
 	if (parentTable.find(ancestor)->second.descendants.size() != 0)
 	{
@@ -66,7 +66,7 @@ bool ParentStorage::setDescendants(int ancestor, unordered_set<int> descendants)
 
 	for (auto itr = descendants.cbegin(); itr != descendants.cend(); ++itr)
 	{
-		anc_DescPairList.emplace(pair<int, int>(ancestor, *itr));
+		anc_DescPairList.emplace(std::pair<int, int>(ancestor, *itr));
 	}
 	return true;
 }
@@ -86,7 +86,7 @@ bool ParentStorage::isChild(int stm)
 	return childrenList.find(stm) != childrenList.end();
 }
 
-bool ParentStorage::hasAncDescPair(pair<int, int> pair)
+bool ParentStorage::hasAncDescPair(std::pair<int, int> pair)
 {
 	return anc_DescPairList.find(pair) != anc_DescPairList.end();
 }
@@ -100,7 +100,7 @@ int ParentStorage::getParent(int stm)
 	return 0;
 }
 
-unordered_set<int> ParentStorage::getChildren(int stm)
+std::unordered_set<int> ParentStorage::getChildren(int stm)
 {
 	if (parentTable.find(stm) != parentTable.end())
 	{
@@ -109,7 +109,7 @@ unordered_set<int> ParentStorage::getChildren(int stm)
 	return {};
 }
 
-unordered_set<int> ParentStorage::getAncestors(int stm)
+std::unordered_set<int> ParentStorage::getAncestors(int stm)
 {
 	if (parentTable.find(stm) != parentTable.end())
 	{
@@ -118,7 +118,7 @@ unordered_set<int> ParentStorage::getAncestors(int stm)
 	return {};
 }
 
-unordered_set<int> ParentStorage::getDescendants(int stm)
+std::unordered_set<int> ParentStorage::getDescendants(int stm)
 {
 	if (parentTable.find(stm) != parentTable.end())
 	{
@@ -127,22 +127,22 @@ unordered_set<int> ParentStorage::getDescendants(int stm)
 	return {};
 }
 
-unordered_set<int> ParentStorage::getAllParent()
+std::unordered_set<int> ParentStorage::getAllParent()
 {
 	return parentList;
 }
 
-unordered_set<int> ParentStorage::getAllChildren()
+std::unordered_set<int> ParentStorage::getAllChildren()
 {
 	return childrenList;
 }
 
-unordered_set<pair<int, int>, intPairhash> ParentStorage::getParentChildPairs()
+std::unordered_set<std::pair<int, int>, intPairhash> ParentStorage::getParentChildPairs()
 {
 	return parent_ChildPairList;
 }
 
-unordered_set<pair<int, int>, intPairhash> ParentStorage::getAncDescPair()
+std::unordered_set<std::pair<int, int>, intPairhash> ParentStorage::getAncDescPair()
 {
 	return anc_DescPairList;
 }

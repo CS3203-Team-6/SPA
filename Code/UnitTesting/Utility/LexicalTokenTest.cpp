@@ -3,7 +3,6 @@
 #include "LexicalToken.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace LexicalToken;
 
 namespace UnitTesting
 {

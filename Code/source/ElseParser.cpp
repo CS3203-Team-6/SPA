@@ -16,7 +16,8 @@
   output: vector<string> of variables/constants
 */
 
-ElseParser::ElseParser(int stmtNo, string stmt, vector<Statement> stmtlst, std::string procedure) {
+ElseParser::ElseParser(int stmtNo, std::string stmt, std::vector<Statement> stmtlst,
+					   std::string procedure) {
 	bool valid1 = !stmtlst.empty();
 	if (valid1) {
 		stmtNum = stmtNo;

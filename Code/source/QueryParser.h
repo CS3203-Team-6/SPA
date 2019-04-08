@@ -1,30 +1,38 @@
 #pragma once
 
-#include<stdio.h>
+#include <stdio.h>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
 
-using namespace std;
-
 class QueryParser {
 public:
-	static unordered_set<string> parse(string query);
+	static std::unordered_set<std::string> parse(std::string query);
 
-	static vector<string> splitClauses(string query);
-	static unordered_map<string, string> splitDeclarations(vector<string> clauses);
-	static vector<string> splitSelectParameter(string selectStatement);
-	static vector<pair<string, pair<string, string>>> splitSuchThatCondition(vector<string> suchThatClause);
-	static vector<pair<string, pair<string, string>>> splitPatternCondition(vector<string> patternClause);
-	static vector<pair<string, string>> splitWithCondition(vector<string> withClause);
-	static unordered_set<string> evaluateSelectConditions(
-		unordered_map<string, string> declarations,
-		vector<string> selectedVar, 
-		vector<pair<string, pair<string, string>>> suchThatCondition,
-		vector<pair<string, pair<string, string>>> patternCondition,
-		vector<pair<string, string>> withCondition);
+	static std::vector<std::string> splitClauses(std::string query);
 
-	static int getMinimumValue(vector<int> indexes);
+	static std::unordered_map<std::string, std::string>
+		splitDeclarations(std::vector<std::string> clauses);
+
+	static std::vector<std::string> splitSelectParameter(std::string selectStatement);
+
+	static std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
+		splitSuchThatCondition(std::vector<std::string> suchThatClause);
+
+	static std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
+		splitPatternCondition(std::vector<std::string> patternClause);
+
+	static std::vector<std::pair<std::string, std::string>>
+		splitWithCondition(std::vector<std::string> withClause);
+
+	static std::unordered_set<std::string> evaluateSelectConditions(
+		std::unordered_map<std::string, std::string> declarations,
+		std::vector<std::string> selectedVar,
+		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> suchThatCondition,
+		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> patternCondition,
+		std::vector<std::pair<std::string, std::string>> withCondition);
+
+	static int getMinimumValue(std::vector<int> indexes);
 };

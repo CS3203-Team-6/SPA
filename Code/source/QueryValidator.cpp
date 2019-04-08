@@ -7,13 +7,12 @@
 #include <unordered_set>
 #include <unordered_map>
 
-using namespace std;
-
 #include "QueryValidator.h"
 #include "LexicalToken.h"
 #include "ExpressionUtil.h"
 
-const unordered_set<string> validVarType = { "stmt", "read", "print", "call", "while", "if", "assign", "variable", "constant", "prog_line", "procedure" };
+const std::unordered_set<std::string> validVarType = { "stmt", "read", "print", "call",
+	"while", "if", "assign", "variable", "constant", "prog_line", "procedure" };
 
 /*
 Checks whether the input string is valid:
@@ -22,7 +21,7 @@ Checks whether the input string is valid:
 - has declaration
 Output: error message (if any), otherwise empty string
 */
-string QueryValidator::initialValidation(string query) {
+std::string QueryValidator::initialValidation(std::string query) {
 
 	if (query.length() <= 0) {
 		return "invalid query";
@@ -43,7 +42,7 @@ Validates declaration clauses based on following conditions:
 - "Select" clause appears after all declaration clauses
 - Each declaration clause consists of varType and varName
 */
-string QueryValidator::validateClauses(vector<string> clauses) {
+std::string QueryValidator::validateClauses(std::vector<std::string> clauses) {
 	
 	int clausesSize = clauses.size();
 
@@ -65,7 +64,8 @@ Validates declaration vector based on following conditions:
 - design-entity should be valid
 - synonym should follow the grammar rule: LETTER (LETTER | DIGIT)*
 */
-string QueryValidator::validateDeclarations(unordered_map<string, string> declarations) {
+std::string QueryValidator::validateDeclarations(
+	std::unordered_map<std::string, std::string> declarations) {
 	
 	for (auto x: declarations) {
 		if (validVarType.find(x.second) == validVarType.end()) {
@@ -85,12 +85,14 @@ Validates vector of selected synonym based on following conditions:
 - synonym should follow the grammar rule: LETTER (LETTER | DIGIT)*
 - synonym should be declared previously
 */
-string QueryValidator::validateSelectedVar(vector<string> selectedVar, unordered_map<string, string> declarationsMap) {
+std::string QueryValidator::validateSelectedVar(std::vector<std::string> selectedVar,
+												std::unordered_map<std::string,
+												std::string> declarationsMap) {
 
-	unordered_set<string> intTypeRefStmtNum = { "stmt", "read", "print", "while", "if", "assign", "call" };
-	unordered_set<string> intTypeRefValue = { "constant" };
-	unordered_set<string> stringTypeRefProcName = { "procedure", "call" };
-	unordered_set<string> stringTypeRefVarName = { "variable", "read", "print" };
+	std::unordered_set<std::string> intTypeRefStmtNum = { "stmt", "read", "print", "while", "if", "assign", "call" };
+	std::unordered_set<std::string> intTypeRefValue = { "constant" };
+	std::unordered_set<std::string> stringTypeRefProcName = { "procedure", "call" };
+	std::unordered_set<std::string> stringTypeRefVarName = { "variable", "read", "print" };
 
 	for (int i = 0; i < selectedVar.size(); i++) {
 		
@@ -102,14 +104,14 @@ string QueryValidator::validateSelectedVar(vector<string> selectedVar, unordered
 		// select type: synonym with attributes
 		if (selectedVar[i].find(".") != -1) {
 			int dotIndex = selectedVar[i].find(".");
-			string left = selectedVar[i].substr(0, dotIndex);
-			string right = selectedVar[i].substr(dotIndex + 1, selectedVar[i].length() - dotIndex - 1);
+			std::string left = selectedVar[i].substr(0, dotIndex);
+			std::string right = selectedVar[i].substr(dotIndex + 1, selectedVar[i].length() - dotIndex - 1);
 			
 			if (declarationsMap.find(left) == declarationsMap.end()) {
 				return "selected variable not found";
 			}
 			
-			string synonymType = declarationsMap.find(left)->second;
+			std::string synonymType = declarationsMap.find(left)->second;
 
 			if (right == "stmt#" && (intTypeRefStmtNum.find(synonymType) != intTypeRefStmtNum.end())) {
 				// valid stmt# attribute
@@ -136,7 +138,8 @@ string QueryValidator::validateSelectedVar(vector<string> selectedVar, unordered
 		}
 
 		// select type: synonym
-		if (selectedVar[i] != "BOOLEAN" && declarationsMap.find(selectedVar[i]) == declarationsMap.end()) {
+		if (selectedVar[i] != "BOOLEAN" &&
+			declarationsMap.find(selectedVar[i]) == declarationsMap.end()) {
 			return "selected variable not found";
 		}
 	}
@@ -149,22 +152,27 @@ Validates vector of such that parameter based on following conditions:
 - valid relation name
 - for each relation, first and second argument should be valid
 */
-string QueryValidator::validateSuchThatParam(vector<pair<string, pair<string, string>>> param, unordered_map<string, string> declarationsMap) {
+std::string QueryValidator::validateSuchThatParam(std::vector<std::pair<std::string, std::pair<std::string, std::string>>> param,
+												  std::unordered_map<std::string, std::string> declarationsMap) {
 
-	unordered_set<string> validRelation = { "Parent", "Parent*", "Follows", "Follows*", "Uses", "Modifies", "Calls", "Calls*", "Next", "Next*", "Affects", "Affects*" };
-	unordered_set<string> validArgs = { "stmt", "read", "print", "while", "if", "assign", "call", "prog_line" };
-	unordered_set<string> validFirstArgsParent = { "stmt", "while", "if", "prog_line" };
-	unordered_set<string> validFirstArgsUses = { "stmt", "print", "while", "if", "assign", "call", "procedure", "prog_line" };
-	unordered_set<string> validFirstArgsModifies = { "stmt", "read", "while", "if", "assign", "call", "procedure", "prog_line" };
-	unordered_set<string> validArgsCalls = { "procedure" };
-	unordered_set<string> validArgsAffects = { "stmt", "assign", "prog_line" };
+	std::unordered_set<std::string> validRelation = { "Parent", "Parent*", "Follows",
+		"Follows*", "Uses", "Modifies", "Calls", "Calls*", "Next", "Next*", "Affects", "Affects*" };
+	std::unordered_set<std::string> validArgs = { "stmt", "read", "print", "while", "if",
+		"assign", "call", "prog_line" };
+	std::unordered_set<std::string> validFirstArgsParent = { "stmt", "while", "if", "prog_line" };
+	std::unordered_set<std::string> validFirstArgsUses = { "stmt", "print", "while", "if",
+		"assign", "call", "procedure", "prog_line" };
+	std::unordered_set<std::string> validFirstArgsModifies = { "stmt", "read", "while", "if",
+"assign", "call", "procedure", "prog_line" };
+	std::unordered_set<std::string> validArgsCalls = { "procedure" };
+	std::unordered_set<std::string> validArgsAffects = { "stmt", "assign", "prog_line" };
 
 	for (int i = 0; i < param.size(); i++) {
-		string relation = param[i].first;
-		string firstArgs = param[i].second.first;
-		string secondArgs = param[i].second.second;
-		string firstArgsType;
-		string secondArgsType;
+		std::string relation = param[i].first;
+		std::string firstArgs = param[i].second.first;
+		std::string secondArgs = param[i].second.second;
+		std::string firstArgsType;
+		std::string secondArgsType;
 
 		// Initial Validation
 		if (validRelation.find(relation) == validRelation.end()) {
@@ -328,13 +336,14 @@ Validates vector of pattern parameter based on following conditions:
 
 Note: for if pattern, the third args will be removed
 */
-string QueryValidator::validatePatternParam(vector<pair<string, pair<string, string>>> param, unordered_map<string, string> declarationsMap) {
+std::string QueryValidator::validatePatternParam(std::vector<std::pair<std::string, std::pair<std::string, std::string>>> param,
+												 std::unordered_map<std::string, std::string> declarationsMap) {
 	
 	for (int i = 0; i < param.size(); i++) {
-		string stmt = param[i].first;
-		string stmtType;
-		string firstArgs = param[i].second.first;
-		string secondArgs = param[i].second.second;
+		std::string stmt = param[i].first;
+		std::string stmtType;
+		std::string firstArgs = param[i].second.first;
+		std::string secondArgs = param[i].second.second;
 
 		// Assign synonym validation
 		if (!LexicalToken::verifyName(stmt)) {
@@ -400,21 +409,23 @@ string QueryValidator::validatePatternParam(vector<pair<string, pair<string, str
 Validates vector of with parameter based on following conditions:
 - ...
 */
-string QueryValidator::validateWithParam(vector<pair<string, string>> param, unordered_map<string, string> declarationsMap) {
+std::string QueryValidator::validateWithParam(std::vector<std::pair<std::string, std::string>> param,
+											  std::unordered_map<std::string, std::string> declarationsMap) {
 
-	unordered_set<string> intTypeNoRef = { "prog_line" };
-	unordered_set<string> intTypeRefStmtNum = { "stmt", "read", "print", "while", "if", "assign", "call" };
-	unordered_set<string> intTypeRefValue = { "constant" };
-	unordered_set<string> stringTypeRefProcName = { "procedure", "call" };
-	unordered_set<string> stringTypeRefVarName = { "variable", "read", "print" };
+	std::unordered_set<std::string> intTypeNoRef = { "prog_line" };
+	std::unordered_set<std::string> intTypeRefStmtNum = { "stmt", "read", "print", "while",
+		"if", "assign", "call" };
+	std::unordered_set<std::string> intTypeRefValue = { "constant" };
+	std::unordered_set<std::string> stringTypeRefProcName = { "procedure", "call" };
+	std::unordered_set<std::string> stringTypeRefVarName = { "variable", "read", "print" };
 
 	for (int i = 0; i < param.size(); i++) {
-		string firstArgs = param[i].first;
-		string secondArgs = param[i].second;
-		string firstArgsType = "";
-		string secondArgsType = "";
-		string synonym;
-		string synonymType;
+		std::string firstArgs = param[i].first;
+		std::string secondArgs = param[i].second;
+		std::string firstArgsType = "";
+		std::string secondArgsType = "";
+		std::string synonym;
+		std::string synonymType;
 
 		// check firstArgs type(int / string)
 

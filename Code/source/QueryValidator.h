@@ -6,16 +6,25 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace std;
-
 class QueryValidator {
 public:
 
-	static string initialValidation(string query);
-	static string validateClauses(vector<string> clauses);
-	static string validateDeclarations(unordered_map<string, string> declarations);
-	static string validateSelectedVar(vector<string> selectedVar, unordered_map<string, string> declarationsMap);
-	static string validateSuchThatParam(vector<pair<string, pair<string, string>>> param, unordered_map<string, string> declarationsMap);
-	static string validatePatternParam(vector<pair<string, pair<string, string>>> param, unordered_map<string, string> declarationsMap);
-	static string validateWithParam(vector<pair<string, string>> param, unordered_map<string, string> declarationsMap);
+	static std::string initialValidation(std::string query);
+	static std::string validateClauses(std::vector<std::string> clauses);
+	static std::string validateDeclarations(std::unordered_map<std::string,
+											std::string> declarations);
+	static std::string validateSelectedVar(
+		std::vector<std::string> selectedVar,
+		std::unordered_map<std::string, std::string> declarationsMap);
+
+	static std::string validateSuchThatParam(
+		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> param,
+		std::unordered_map<std::string, std::string> declarationsMap);
+
+	static std::string validatePatternParam(
+		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> param,
+		std::unordered_map<std::string, std::string> declarationsMap);
+
+	static std::string validateWithParam(std::vector<std::pair<std::string, std::string>> param,
+										 std::unordered_map<std::string, std::string> declarationsMap);
 };

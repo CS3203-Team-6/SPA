@@ -10,7 +10,6 @@ namespace UnitTesting
 	TEST_CLASS(NextStarTest)
 	{
 	public:
-
 		TEST_METHOD(testNextStar)
 		{
 			PKB storage = PKB();
@@ -30,12 +29,12 @@ namespace UnitTesting
 			storage.addNext(3, 4);
 			storage.addNext(4, 5);
 			storage.addNext(2, 5);
-			unordered_set<int> expected;
+			std::unordered_set<int> expected;
 			expected.insert(2);
 			expected.insert(3);
 			expected.insert(4);
 			expected.insert(5);
-			unordered_set<int> result = storage.getAllLnAfter(1);
+			std::unordered_set<int> result = storage.getAllLnAfter(1);
 			bool output;
 			if (result == expected) {
 				output = true;
@@ -56,7 +55,7 @@ namespace UnitTesting
 			storage.addNext(4, 5);
 			storage.addNext(4, 2);
 			storage.addNext(2, 5);
-			unordered_set<pair<int, int>, intPairhash> expected;
+			std::unordered_set<std::pair<int, int>, intPairhash> expected;
 			expected.emplace(1, 2);
 			expected.emplace(1, 3);
 			expected.emplace(1, 4);
@@ -73,7 +72,7 @@ namespace UnitTesting
 			expected.emplace(4, 2);
 			expected.emplace(4, 3);
 			expected.emplace(4, 4);
-			unordered_set<pair<int, int>, intPairhash> result = storage.getNextStarPairs();
+			std::unordered_set<std::pair<int, int>, intPairhash> result = storage.getNextStarPairs();
 			bool output;
 			if (result == expected) {
 				output = true;

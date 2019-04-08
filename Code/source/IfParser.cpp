@@ -16,7 +16,7 @@
   output: std::vector<std::string> of variables/constants
 */
 
-IfParser::IfParser(int stmtNo, string stmt, vector<Statement> stmtlst, string proc) {
+IfParser::IfParser(int stmtNo, std::string stmt, std::vector<Statement> stmtlst, std::string proc) {
 	int i = stmt.find('(');
 	int j = stmt.rfind(')');
 	std::string cond_expr = stmt.substr(i + 1, j - i - 1);

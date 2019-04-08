@@ -3,8 +3,6 @@
 #include <functional>
 #include <utility>
 
-using namespace std;
-
 /*
 	These self-defined hashers are used by the PKB to hash pair containers to be stored
 	in unordered_set. They use Szudzik's function found in 
@@ -13,7 +11,7 @@ using namespace std;
 struct intPairhash {
 public:
 	template <typename T, typename U>
-	size_t operator()(const pair<T, U> &x) const
+	size_t operator()(const std::pair<T, U> &x) const
 	{
 		T a = x.first;
 		U b = x.second;
@@ -24,7 +22,7 @@ public:
 struct intStringhash {
 public:
 	template <typename T, typename U>
-	size_t operator()(const pair<T, U> &x) const
+	size_t operator()(const std::pair<T, U> &x) const
 	{
 		std::hash<std::string> strHasher;
 
@@ -37,7 +35,7 @@ public:
 struct strPairhash {
 public:
 	template <typename T, typename U>
-	size_t operator()(const pair<T, U> &x) const
+	size_t operator()(const std::pair<T, U> &x) const
 	{
 		std::hash<std::string> strHasher;
 

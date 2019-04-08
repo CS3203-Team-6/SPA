@@ -138,7 +138,7 @@
     <ClCompile Include="..\source\RunTimeDesignExtractor.cpp">
       <Filter>Source Files\DesignExtractor</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\ControlVariableStorage.cpp">
+    <ClCompile Include="..\source\CtrlVarStorage.cpp">
       <Filter>Source Files\PKB</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Optimizer.cpp">
@@ -215,9 +215,6 @@
     <ClInclude Include="..\source\StringUtil.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\QueryValidator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\CallParser.h">
       <Filter>Header Files\Parser</Filter>
     </ClInclude>
@@ -233,7 +230,13 @@
     <ClInclude Include="..\source\RunTimeDesignExtractor.h">
       <Filter>Header Files\DesignExtractor</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\ControlVariableStorage.h">
+    <ClInclude Include="..\source\QueryValidator.h">
+      <Filter>Header Files\PQL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Preprocessor.h">
+      <Filter>Header Files\PreProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\CtrlVarStorage.h">
       <Filter>Header Files\PKB</Filter>
     </ClInclude>
     <ClInclude Include="..\source\Optimizer.h">

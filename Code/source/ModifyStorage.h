@@ -5,8 +5,6 @@
 #include <unordered_map>
 #include <utility>
 
-using namespace std;
-
 #include "Hasher.h"
 
 /*
@@ -21,60 +19,60 @@ public:
 		add the Modifies relation for a statement into the relevant lists and maps in the storage
 		Returns false if the pair is already exist
 	*/
-	bool addModifiesStm(int stm, string variable);
+	bool addModifiesStm(int stm, std::string variable);
 
 	/*
 		add the Modifies relation for a procedure into the relevant lists and maps in the storage
 		Returns false if the pair is already exist
 	*/
-	bool addModifiesProc(string procedure, string variable);
+	bool addModifiesProc(std::string procedure, std::string variable);
 
 	// returns true if the specified <statement, variable> pair is found
-	bool containsStmVarPair(pair<int, string> pair);
+	bool containsStmVarPair(std::pair<int, std::string> pair);
 
 	// returns true if the specified <procedure, variable> pair is found
-	bool containsProcVarPair(pair<string, string> pair);
+	bool containsProcVarPair(std::pair<std::string, std::string> pair);
 
 	/*
 		return a list of variables that is modified by 'stm'
 		return an empty set if 'stm' is not found
 	*/
-	unordered_set<string> getVarModifiedByStm(int stm);
+	std::unordered_set<std::string> getVarModifiedByStm(int stm);
 
 	/*
 		return a list of variables that is modified by 'procedure'
 		return an empty set if 'procedure' is not found
 	*/
-	unordered_set<string> getVarModifiedByProc(string proc);
+	std::unordered_set<std::string> getVarModifiedByProc(std::string proc);
 
 	/*
 		return a list of statements that modifies 'variable'
 		returns a list of all statements that modifies a variable if 'variable' == "" 
 		return an empty set if 'variable' is not found
 	*/
-	unordered_set<int> getStmModifying(string variable);
+	std::unordered_set<int> getStmModifying(std::string variable);
 
 	/*
 		return a list of procedures that modifies 'variable'
 		returns a list of all procedures that modifies a variable if 'variable' == "" 
 		return an empty set if 'variable' is not found
 	*/
-	unordered_set<string> getProcModifying(string variable);
+	std::unordered_set<std::string> getProcModifying(std::string variable);
 
 	// returns a list of all Modifies pairs for statements
-	unordered_set< pair<int, string>, intStringhash> getStmVarPairs();
+	std::unordered_set< std::pair<int, std::string>, intStringhash> getStmVarPairs();
 
 	// returns a list of all Modifies pairs for procedures
-	unordered_set< pair<string, string>, strPairhash> getProcVarPairs();
+	std::unordered_set< std::pair<std::string, std::string>, strPairhash> getProcVarPairs();
 
 	// empty the entire storage
 	void erase();
 
 private:
-	static unordered_set<pair<int, string>, intStringhash> stmVarPairList;
-	static unordered_set<pair<string, string>, strPairhash> procVarPairList;
-	static unordered_map<int, unordered_set<string>> stmToVarMap;
-	static unordered_map<string, unordered_set<string>> procToVarMap;
-	static unordered_map<string, unordered_set<int> > varToStmMap;
-	static unordered_map<string, unordered_set<string> > varToProcMap;
+	static std::unordered_set<std::pair<int, std::string>, intStringhash> stmVarPairList;
+	static std::unordered_set<std::pair<std::string, std::string>, strPairhash> procVarPairList;
+	static std::unordered_map<int, std::unordered_set<std::string>> stmToVarMap;
+	static std::unordered_map<std::string, std::unordered_set<std::string>> procToVarMap;
+	static std::unordered_map<std::string, std::unordered_set<int> > varToStmMap;
+	static std::unordered_map<std::string, std::unordered_set<std::string> > varToProcMap;
 };

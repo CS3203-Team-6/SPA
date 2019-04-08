@@ -90,7 +90,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(SolutionDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)UnitTesting;$(VCInstallDir)UnitTest\include;$(SolutionDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -162,33 +162,45 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="PKB\CallStorageStub.h" />
+    <ClInclude Include="PKB\ModifyStorageStub.h" />
+    <ClInclude Include="PKB\NextStorageStub.h" />
+    <ClInclude Include="PKB\ParentStorageStub.h" />
+    <ClInclude Include="PKB\FollowStorageStub.h" />
+    <ClInclude Include="PKB\UseStorageStub.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CallParserTest.cpp" />
-    <ClCompile Include="OptimizerTest.cpp" />
-    <ClCompile Include="DesignExtractorTest.cpp" />
-    <ClCompile Include="NextStartTest.cpp" />
-    <ClCompile Include="PreprocessorTest.cpp" />
-    <ClCompile Include="QueryParserTest.cpp" />
-    <ClCompile Include="LexicalTokenTest.cpp" />
-    <ClCompile Include="ContainerUtilTest.cpp" />
-    <ClCompile Include="QueryValidatorTest.cpp" />
-    <ClCompile Include="StatementTest.cpp" />
-    <ClCompile Include="ConditionalExpTest.cpp" />
-    <ClCompile Include="PrintParserTest.cpp" />
-    <ClCompile Include="procedureParserTest.cpp" />
-    <ClCompile Include="ExpressionUtilTest.cpp" />
-    <ClCompile Include="ReadParserTest.cpp" />
+    <ClCompile Include="Parser\CallParserTest.cpp" />
+    <ClCompile Include="DesignExtractor\DesignExtractorTest.cpp" />
+    <ClCompile Include="DesignExtractor\NextStarTest.cpp" />
+    <ClCompile Include="PKB\CallStorageTest.cpp" />
+    <ClCompile Include="PKB\FollowStorageTest.cpp" />
+    <ClCompile Include="PKB\ModifyStorageTest.cpp" />
+    <ClCompile Include="PKB\NextStorageTest.cpp" />
+    <ClCompile Include="PKB\ParentStorageTest.cpp" />
+    <ClCompile Include="PKB\UseStorageTest.cpp" />
+    <ClCompile Include="PreProcessor\PreprocessorTest.cpp" />
+    <ClCompile Include="PQL\QueryParserTest.cpp" />
+    <ClCompile Include="Utility\LexicalTokenTest.cpp" />
+    <ClCompile Include="Utility\ContainerUtilTest.cpp" />
+    <ClCompile Include="PQL\QueryValidatorTest.cpp" />
+    <ClCompile Include="PreProcessor\StatementTest.cpp" />
+    <ClCompile Include="Utility\ConditionalExpTest.cpp" />
+    <ClCompile Include="Parser\PrintParserTest.cpp" />
+    <ClCompile Include="Parser\procedureParserTest.cpp" />
+    <ClCompile Include="Utility\ExpressionUtilTest.cpp" />
+    <ClCompile Include="Parser\ReadParserTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="AssignParserTest.cpp" />
-    <ClCompile Include="OptimizerUtilityTest.cpp" />
+    <ClCompile Include="Parser\AssignParserTest.cpp" />
+    <ClCompile Include="Utility\OptimizerUtilityTest.cpp" />
+    <ClCompile Include="PQL\OptimizerTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

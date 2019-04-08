@@ -3,7 +3,8 @@
 
 PKB DesignExtractor::pkb;
 
-/* The main public function that calls other function to populate different design entities in the PKB.
+/* 
+ * The main public function that calls other function to populate different design entities in the PKB.
  */
 void DesignExtractor::extractDesigns()
 {
@@ -17,23 +18,23 @@ void DesignExtractor::extractDesigns()
 	processParentStar();
 
 	//Statement/Procedure - Variable Relationships
-	vector<string> sortedProcedures = topologicalSortProcedures();
+	std::vector<std::string> sortedProcedures = topologicalSortProcedures();
 	processAdvancedUsesAndModifies(sortedProcedures);
 	processCallsStar(sortedProcedures);
 	extractNextEntity();
 }
 
 /*
- *Checks if the procedures found in Call Statements are found inside the procedure list.
+ * Checks if the procedures found in Call Statements are found inside the procedure list.
  * Iterates through the list of Call Statements and check if it exist in procedure list.
  */
 void DesignExtractor::verifyCalledProceduresPresence()
 {
 	std::unordered_set<std::string> calledProcedures = pkb.getAllCallees();
 	std::unordered_set<std::string> procedureList = pkb.getProcList();
-	for (string calledProcedure : calledProcedures) {
+	for (std::string calledProcedure : calledProcedures) {
 		bool present = false;
-		for (string procedure : procedureList) {
+		for (std::string procedure : procedureList) {
 			if (calledProcedure == procedure) {
 				present = true;
 				break;
@@ -58,7 +59,7 @@ void DesignExtractor::processFollowStar()
 		int directFollowStm = pkb.getFollower(currStmt);
 		//Has a Next Stm
 		if (directFollowStm != 0) {
-			unordered_set<int> followedByStar = pkb.getAllFollowing(directFollowStm);
+			std::unordered_set<int> followedByStar = pkb.getAllFollowing(directFollowStm);
 			followedByStar.insert(directFollowStm);
 			pkb.setAllFollowing(currStmt, followedByStar);
 		}
@@ -71,7 +72,7 @@ void DesignExtractor::processFollowStar()
 
 		//If have Prev Stm
 		if (directPrvStm != 0) {
-			unordered_set<int>  followStar = pkb.getAllFollowedBy(directPrvStm);
+			std::unordered_set<int>  followStar = pkb.getAllFollowedBy(directPrvStm);
 			followStar.insert(directPrvStm);
 			pkb.setAllFollowedBy(currStmt, followStar);
 		}
@@ -93,7 +94,7 @@ void DesignExtractor::processParentStar()
 
 		//If have parent,
 		if (directParentStm != 0) {
-			unordered_set<int> ancestors = pkb.getAncestors(directParentStm);
+			std::unordered_set<int> ancestors = pkb.getAncestors(directParentStm);
 			ancestors.insert(directParentStm);
 			pkb.setAncestors(i, ancestors);
 		}
@@ -102,13 +103,13 @@ void DesignExtractor::processParentStar()
 	//Process stmt list s where Parent*(index, s) is true.
 	for (int i = stmtNum; i >= 1; i--) {
 		int currStmt = i;
-		unordered_set<int> directChildStm = pkb.getChildren(i);
+		std::unordered_set<int> directChildStm = pkb.getChildren(i);
 
-		unordered_set<int> allDescendents;
+		std::unordered_set<int> allDescendents;
 		//Has a Child Stm
 		if (!directChildStm.empty()) {
 			for (int childStm : directChildStm) {
-				unordered_set<int> descendents = pkb.getDescendants(childStm);
+				std::unordered_set<int> descendents = pkb.getDescendants(childStm);
 				for (int descendent : descendents) {
 					allDescendents.insert(descendent);
 				}
@@ -126,7 +127,7 @@ void DesignExtractor::processParentStar()
  * For example if TestA calls TestB, and TestB calls TestC, and Test A calls TestC.
  * A valid toposort result would return {TestC, TestB, TestA} in a vector.
  */
-vector<string> DesignExtractor::topologicalSortProcedures() {
+std::vector<std::string> DesignExtractor::topologicalSortProcedures() {
 	std::unordered_set<std::string> procList = pkb.getProcList();
 	int procListSize = procList.size();
 
@@ -154,7 +155,10 @@ vector<string> DesignExtractor::topologicalSortProcedures() {
  * 3) sortedProcedures: The list of procedures that in a toposort order.
  * 4) pathVisitedProcedure: The list of procedures that have been called in the current DFSRecursive Stack.
  */
-void DesignExtractor::DFSRecursive(std::string procedure, unordered_set<std::string> &visitedProcedures, vector<std::string> &sortedProcedures, unordered_set<std::string> pathVisitedProcedure) {
+void DesignExtractor::DFSRecursive(std::string procedure,
+								   std::unordered_set<std::string> &visitedProcedures,
+								   std::vector<std::string> &sortedProcedures,
+								   std::unordered_set<std::string> pathVisitedProcedure) {
 	//Marks procedure as visited
 	visitedProcedures.insert(procedure);
 
@@ -162,7 +166,7 @@ void DesignExtractor::DFSRecursive(std::string procedure, unordered_set<std::str
 	pathVisitedProcedure.insert(procedure);
 
 	//Get neighbouring procedures.
-	unordered_set<string> adjacentProcedures = pkb.getCallee(procedure);
+	std::unordered_set<std::string> adjacentProcedures = pkb.getCallee(procedure);
 
 	//For each neighbouring procedure
 	for (std::string callee : adjacentProcedures) {
@@ -190,9 +194,9 @@ void DesignExtractor::DFSRecursive(std::string procedure, unordered_set<std::str
 	pathVisitedProcedure.erase(procedure);
 }
 
-/*
- * Performs population of Uses and Modifies for Calls, If/While Container Statements and Procecedures
- * starting from the leaf node procedures.
+/* 
+ * Performs population of Uses and Modifies for Calls,
+ * If/While Container Statements and Procecedures starting from the leaf node procedures.
  */
 void DesignExtractor::processAdvancedUsesAndModifies(std::vector<std::string> sortedProcedures) {
 	for (std::string procedure : sortedProcedures) {
@@ -253,8 +257,8 @@ void DesignExtractor::processModifiesCalls(std::string procedure) {
 }
 
 /*
- * Processes the the variables that are MODIFIED in Containing Statement so that the While/If Statement
- * also MODIFY these variables.
+ * Processes the the variables that are MODIFIED in Containing Statement so that 
+ * the While/If Statement also MODIFY these variables.
  */
 void DesignExtractor::processModifiesContainers(std::string procedure) {
 	//TODO: Implement for Iteration 2
@@ -262,10 +266,10 @@ void DesignExtractor::processModifiesContainers(std::string procedure) {
 
 	for (int i = procedureStm.size() - 1; i >= 0; i--) {
 		int currLine = procedureStm.at(i);
-		unordered_set<int> descendents = pkb.getDescendants(currLine);
+		std::unordered_set<int> descendents = pkb.getDescendants(currLine);
 		for (int descendent : descendents) {
-			unordered_set<string> modifiedList = pkb.getVarModifiedByStm(descendent);
-			for (string modifiedVar : modifiedList) {
+			std::unordered_set<std::string> modifiedList = pkb.getVarModifiedByStm(descendent);
+			for (std::string modifiedVar : modifiedList) {
 				pkb.addModifiesStm(currLine, modifiedVar);
 			}
 		}
@@ -282,10 +286,10 @@ void DesignExtractor::processUsesContainers(std::string procedure) {
 
 	for (int i = procedureStm.size() - 1; i >= 0; i--) {
 		int currLine = procedureStm.at(i);
-		unordered_set<int> descendents = pkb.getDescendants(currLine);
+		std::unordered_set<int> descendents = pkb.getDescendants(currLine);
 		for (int descendent : descendents) {
-			unordered_set<string> usedList = pkb.getVarUsedByStm(descendent);
-			for (string usedVariable : usedList) {
+			std::unordered_set<std::string> usedList = pkb.getVarUsedByStm(descendent);
+			for (std::string usedVariable : usedList) {
 				pkb.addUsesStm(currLine, usedVariable);
 			}
 		}
@@ -293,8 +297,8 @@ void DesignExtractor::processUsesContainers(std::string procedure) {
 }
 
 /*
- * Processes the variables that are USED in a procedure, by checking the use Relation for all Statements belonging
- * to that procedure.
+ * Processes the variables that are USED in a procedure,
+ * by checking the use Relation for all Statements belonging to that procedure.
  */
 void DesignExtractor::processUsesProcedures(std::string procedure)
 {
@@ -313,8 +317,8 @@ void DesignExtractor::processUsesProcedures(std::string procedure)
 }
 
 /*
- * Processes the variables that are MODIFIED in a procedure, by checking the modifying Relation for all Statements belonging
- * to that procedure.
+ * Processes the variables that are MODIFIED in a procedure,
+ * by checking the modifying Relation for all Statements belonging to that procedure.
  */
 void DesignExtractor::processModifiesProcedures(std::string procedure)
 {
@@ -378,10 +382,10 @@ void DesignExtractor::processCallsStar(std::vector<std::string> sortedProcedures
 
 //get all if Statments and extrct Next entity
 void DesignExtractor::extractNextEntity() {
-	unordered_set<int> ifStmtList = pkb.getIfStms();
+	std::unordered_set<int> ifStmtList = pkb.getIfStms();
 	for (int stmt : ifStmtList) {
 		//pair<int,int> first int is last stmt of then block, second int is last stmt of else block
-		pair<int, int> ifLastStmt = pkb.getIfLastStms(stmt);
+		std::pair<int, int> ifLastStmt = pkb.getIfLastStms(stmt);
 		int parent = pkb.getParent(stmt);
 		//if if statment have follower, next(last stmt of then block and else block, follower)
 		if (pkb.getFollower(stmt) != 0) {

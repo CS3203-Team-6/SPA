@@ -49,10 +49,10 @@ void Optimizer::groupClause() {
 void Optimizer::groupByClauseType(int i) {
 	std::pair<int,std::vector<std::string>> prioritySyn;
 	//clauses are represented internally by int, in the order pattern, with, st
-	if (i > wsize + psize) {
+	if (i >= (wsize + psize)) {
 		prioritySyn = extractSuchThatSyn(i - wsize - psize);
 		createMaps(prioritySyn.second, std::make_pair(prioritySyn.first, i));
-	} else if (i > psize) {
+	} else if (i >= psize) {
 		prioritySyn = extractWithSyn(i - psize);
 		createMaps(prioritySyn.second, std::make_pair(prioritySyn.first, i));
 	} else {
@@ -70,9 +70,10 @@ void Optimizer::createMaps(std::vector<std::string> synLst, std::pair<int,int> c
 	for (std::vector<std::string>::iterator it = synLst.begin(); it != synLst.end(); ++it) {
 		if (synMap.find(*it) == synMap.end()) {
 			synMap[*it] = std::priority_queue<std::pair<int,int>>();
-		} else {
 			synMap[*it].push(cl);
 			synSet.insert(*it);
+		} else {
+			synMap[*it].push(cl);
 		}
 
 	}
@@ -89,11 +90,11 @@ void Optimizer::createMaps(std::vector<std::string> synLst, std::pair<int,int> c
 */
 bool Optimizer::mapClauses(std::pair<int,int> cl, bool isTrivial) {
 	std::pair<std::string, std::pair<std::string, std::string>> clause;
+	clause = getClause(cl.second);
+	graph.push_back(clause);
 	clSet.erase(cl); //clause removed from bookkeeping sets
 	for (std::vector<std::string>::iterator it = clMap[cl.second].begin(); it != clMap[cl.second].end(); ++it) {
 		if (synSet.find(*it) != synSet.end()) { //check if synonym is already (partially) processed
-			clause = getClause(cl.second);
-			graph.push_back(clause);
 			isTrivial = mapSynonym(*it, isTrivial);
 		}
 	}
@@ -114,6 +115,7 @@ bool Optimizer::mapSynonym(std::string syn, bool isTrivial) {
 	if (isTrivial && (selectClause.find(syn) != selectClause.end())) {
 		isTrivial = false;
 	}
+	synSet.erase(syn); //synonym removed from bookkeeping sets
 	while (!synMap[syn].empty()) {
 		std::pair<int,int> cl = synMap[syn].top();
 		synMap[syn].pop();
@@ -121,7 +123,6 @@ bool Optimizer::mapSynonym(std::string syn, bool isTrivial) {
 			isTrivial = mapClauses(cl, isTrivial);
 		}
 	}
-	synSet.erase(syn); //synonym removed from bookkeeping sets
 	return isTrivial;
 }
 
@@ -134,22 +135,31 @@ std::pair<int, std::vector<std::string>> Optimizer::extractSuchThatSyn(int index
 	std::string f = suchThatClauses.at(index).second.first;
 	std::string s = suchThatClauses.at(index).second.second;
 	int synNum = 0;
-	int tmp = OptimizerUtility::getSuchThatEntityType(f);
-	if (tmp == 1) {
-		synLst.push_back(f);
-	}
-	if (tmp > 0) {
+	int tmp1 = OptimizerUtility::getSuchThatEntityType(f);
+	int tmp2 = OptimizerUtility::getSuchThatEntityType(s);
+	if (tmp1 > 0) {
 		synNum++;
 	}
-	tmp = OptimizerUtility::getSuchThatEntityType(s);
-	if (tmp == 1) {
+	if (tmp2 > 0) {
+		synNum++;
+	}
+	if (tmp1 == 1 && tmp2 == 1) {
+		tmp1 = OptimizerUtility::getSynonymPriority(declarations[f]);
+		tmp2 = OptimizerUtility::getSynonymPriority(declarations[s]);
+		if (tmp1 < tmp2) {
+			synLst.push_back(s);
+			synLst.push_back(f);
+		} else {
+			synLst.push_back(f);
+			synLst.push_back(s);
+		}
+	} else if (tmp1 == 1) {
+		synLst.push_back(f);
+	} else if (tmp2 == 1) {
 		synLst.push_back(s);
 	}
-	if (tmp > 0) {
-		synNum++;
-	}
-	tmp = OptimizerUtility::getSuchThatPriority(r, synNum);
-	return std::make_pair(tmp, synLst);
+	tmp1 = OptimizerUtility::getSuchThatPriority(r, synNum);
+	return std::make_pair(tmp1, synLst);
 }
 
 std::pair<int, std::vector<std::string>> Optimizer::extractPatternSyn(int index) {
@@ -157,16 +167,21 @@ std::pair<int, std::vector<std::string>> Optimizer::extractPatternSyn(int index)
 	std::string syn = patternClauses.at(index).first;
 	std::string f = patternClauses.at(index).second.first;
 	std::string s = patternClauses.at(index).second.second;
-	synLst.push_back(syn);
 	int tmp1 = OptimizerUtility::getPatternEntityType1(f);
-	if (tmp1 == 1) {
-		synLst.push_back(f);
-	}
 	//get from declaration --> syn type of syn
 	std::string type = declarations[syn];
 	int tmp2 = 0;
 	if (type.compare("assign") == 0) {
 		tmp2 = OptimizerUtility::getPatternEntityType2(s);
+		if (tmp1 == 1) {
+			synLst.push_back(f);
+		}
+		synLst.push_back(syn);
+	} else {
+		synLst.push_back(syn);
+		if (tmp1 == 1) {	
+			synLst.push_back(f);
+		}
 	}
 	int p = OptimizerUtility::getPatternPriority(type, tmp1, tmp2);
 	return std::make_pair(p, synLst);
@@ -177,13 +192,30 @@ std::pair<int, std::vector<std::string>> Optimizer::extractWithSyn(int index) {
 	std::string f = withClauses.at(index).second.first;
 	std::string s = withClauses.at(index).second.second;
 	int synNum = 0;
+	int i1 = 0;
 	if (OptimizerUtility::isWithSynonym(f)) {
+		i1 = OptimizerUtility::getSynonymPriority(declarations[f.substr(0, f.find("."))]);
 		synLst.push_back(f.substr(0,f.find(".")));
 		synNum++;
+	} else if (declarations.find(f) != declarations.end()) {
+		if (declarations[f] == "prog_line") {
+			i1 = 1;
+			synLst.push_back(f);
+			synNum++;
+		}
 	}
 	if (OptimizerUtility::isWithSynonym(s)) {
-		synLst.push_back(s.substr(0, s.find(".")));
+		if (OptimizerUtility::getSynonymPriority(declarations[s.substr(0, s.find("."))]) > i1) {
+			synLst.insert(synLst.begin(), s.substr(0, s.find(".")));
+		} else {
+			synLst.push_back(s.substr(0, s.find(".")));
+		}
 		synNum++;
+	} else if (declarations.find(s) != declarations.end()) {
+		if (declarations[s] == "prog_line") {
+			synLst.push_back(s);
+			synNum++;
+		}
 	}
 	int p = OptimizerUtility::getWithPriority(synNum);
 	return std::make_pair(p, synLst);
@@ -199,10 +231,10 @@ std::vector<std::vector<std::pair<std::string, std::pair<std::string, std::strin
 
 std::pair<std::string, std::pair<std::string, std::string>> Optimizer::getClause(int cl) {
 	std::pair<std::string, std::pair<std::string, std::string>> clause;
-	if (cl > psize + wsize) {
+	if (cl >= psize + wsize) {
 		clause = suchThatClauses.at(cl - psize - wsize);
 	}
-	else if (cl > psize) {
+	else if (cl >= psize) {
 		clause = withClauses.at(cl - psize);
 	}
 	else {

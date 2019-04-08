@@ -234,3 +234,31 @@ int OptimizerUtility::getPatternPriority(std::string synType, int t1, int t2) {
 	return 50 - res;
 }
 
+int OptimizerUtility::getSynonymPriority(std::string type) {
+	int res = 12;
+	if (type.compare("assign") == 0) {
+		res = 9;
+	} else if (type.compare("prog_line") == 0) {
+		res = 11;
+	} else if (type.compare("read") == 0) {
+		res = 2;
+	} else if (type.compare("print") == 0) {
+		res = 4;
+	} else if (type.compare("stmt") == 0) {
+		res = 10;
+	} else if (type.compare("if") == 0) {
+		res = 6;
+	} else if (type.compare("while") == 0) {
+		res = 7;
+	} else if (type.compare("variable") == 0) {
+		res = 8;
+	} else if (type.compare("call") == 0) {
+		res = 3;
+	} else if (type.compare("constant") == 0) {
+		res = 5;
+	} else if (type.compare("procedure") == 0) {
+		res = 1;
+	}
+	return 12 - res;
+}
+

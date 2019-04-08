@@ -8,19 +8,18 @@
 #include <sstream>
 #include "StringUtil.h"
 
-using namespace std;
 using namespace StringUtil;
 
 //Splits the string based on the given limiter and returns a vector of substrings.
 std::vector<std::string> StringUtil::split(std::string stmt, char delimiter)
 {
-	vector<string> v;
-	string::size_type i = 0;
+	std::vector<std::string> v;
+	std::string::size_type i = 0;
 	//Find first occurence of delimiter.
-	string::size_type j = stmt.find(delimiter);
+	std::string::size_type j = stmt.find(delimiter);
 
 	//Loop while there is still statement to parse.
-	while (j != string::npos) {
+	while (j != std::string::npos) {
 		//Push result into vector.
 		v.push_back(stmt.substr(i, j - i));
 		//current j is ignore as it is the delimiter. We update i to after delimiter.
@@ -31,7 +30,7 @@ std::vector<std::string> StringUtil::split(std::string stmt, char delimiter)
 		
 	}
 
-	if (j == string::npos)
+	if (j == std::string::npos)
 		v.push_back(stmt.substr(i, stmt.length()));
 
 	return v;

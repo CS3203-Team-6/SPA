@@ -25,8 +25,11 @@ private:
 	static void processFollowStar();
 	static void processParentStar();
 	static void extractNextEntity();
-	static vector<string> topologicalSortProcedures();
-	static void DFSRecursive(std::string procedure, unordered_set<std::string>& visitedProcedures, vector<std::string>& sortedProcedures, unordered_set<std::string> pathVisitedProcedures);
+	static std::vector<std::string> topologicalSortProcedures();
+	static void DFSRecursive(std::string procedure,
+							 std::unordered_set<std::string>& visitedProcedures,
+							 std::vector<std::string>& sortedProcedures,
+							 std::unordered_set<std::string> pathVisitedProcedures);
 	static void processAdvancedUsesAndModifies(std::vector<std::string> sortedProcedures);
 	static void processUsesCalls(std::string procedure);
 	static void processModifiesCalls(std::string procedure);
