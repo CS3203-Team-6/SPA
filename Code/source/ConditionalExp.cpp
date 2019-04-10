@@ -8,7 +8,7 @@
 using namespace ConditionalExp;
 
 std::string str; 
-std::regex formular("\\s*\\(*(!?\\s*\\(*\\s*([a-zA-Z]+[\\da-zA-Z]*)|(\\d+))\\s*\\)*\\s*([\\+\\-\\*/%<>]|[<>!=]=)[\\(\\)\\s]*(([a-zA-Z]+[\\da-zA-Z]*)|(\\d+))[\\(\\s\\)]*(([\\(\\s\\)]*([\\+\\-\\*/%<>]|[<>!=]=)[\\(\\s\\)]*(([a-zA-Z]+[\\da-zA-Z]*)|(\\d+)))*[\\(\\s\\)]*)");
+std::regex formular("\\s*\\(*(!?\\s*\\(*\\s*([a-zA-Z]+\\d*[a-zA-Z]*)|(\\d+))\\s*\\)*\\s*([\\+\\-\\*/%<>]|[<>!=]=)[\\(\\)\\s]*(([a-zA-Z]+\\d*[a-zA-Z]*)|(\\d+))[\\(\\s\\)]*(([\\(\\s\\)]*([\\+\\-\\*/%<>]|[<>!=]=)[\\(\\s\\)]*(([a-zA-Z]+\\d*[a-zA-Z]*)|(\\d+)))*[\\(\\s\\)]*)");
 
 
 bool ConditionalExp::verifyConditionalExp(std::string statement) {

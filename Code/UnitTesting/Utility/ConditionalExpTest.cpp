@@ -14,12 +14,6 @@ namespace UnitTesting
 			Assert::AreEqual(true, result);
 		}
 
-		TEST_METHOD(testValidInput2)
-		{
-			bool result = ConditionalExp::verifyConditionalExp("(b00k - p3nc1l) < (0 + 3 * (1 + (4 * (((1)))) * 5) + p3nc1l)");
-			Assert::AreEqual(true, result);
-		}
-
 		TEST_METHOD(testInvalidInput)
 		{
 			bool result = ConditionalExp::verifyConditionalExp("x)=y+1");
