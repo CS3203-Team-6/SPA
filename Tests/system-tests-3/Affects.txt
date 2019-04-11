@@ -146,7 +146,7 @@ FALSE
 30 - select synonym, affects stmtNumber stmt
 stmt s;
 Select s such that Affects(31, s)
-49
+none
 5000
 31 - select synonym, affects stmtNumber stmt
 stmt s;
@@ -161,7 +161,7 @@ Select s such that Affects(51, s)
 33 - select synonym, affects stmtNumber stmt
 stmt s;
 Select s such that Affects(43, s)
-49
+none
 5000
 34 - select synonym, affects stmtNumber stmt
 stmt s;
@@ -186,7 +186,7 @@ none
 38 - select synonym, affects stmtNumber progLine, modified by 2
 prog_line n;
 Select n such that Affects(8, n)
-none
+12
 5000
 39 - select synonym, affects stmtNumber progLine
 prog_line n;
@@ -196,27 +196,27 @@ Select n such that Affects(17, n)
 40 - select synonym, affects stmtNumber progLine
 prog_line n;
 Select n such that Affects(19, n)
-19, 22, 29
+19
 5000
 41 - select synonym, affects stmtNumber wildcard
 
 Select BOOLEAN such that Affects(53, _)
-none
+FALSE
 5000
 42 - select synonym, affects stmtNumber wildcard
 
 Select BOOLEAN such that Affects(55, _)
-
+FALSE
 5000
 43 - select synonym, affects stmtNumber wildcard
 
 Select BOOLEAN such that Affects(17, _)
-17, 25, 27
+TRUE
 5000
 44 - select synonym, affects stmtNumber wildcard
 
 Select BOOLEAN such that Affects(19, _)
-19, 22, 29
+TRUE
 5000
 45 - select synonym, affects stmt stmtNumber
 stmt s;
@@ -276,7 +276,7 @@ none
 56 - select synonym, affects progLine stmtNumber
 prog_line n;
 Select n such that Affects(n, 3)
-none
+3
 5000
 57 - select synonym, affects progLine stmtNumber
 prog_line n;
@@ -291,10 +291,20 @@ Select n such that Affects(n, 19)
 59 - select synonym, affects wildcard stmtNumber
 
 Select BOOLEAN such that Affects(_, 55)
-none
+FALSE
 5000
 60s - select synonym, affects wildcard stmtNumber
 
 Select BOOLEAN such that Affects(_, 51)
-51
+TRUE
+5000
+61 - select synonym, affects stmtNumber wildcard
+stmt s;
+Select s such that Affects(17, s)
+17, 25, 27
+5000
+62 - select synonym, affects stmtNumber progLine
+prog_line n;
+Select n such that Affects(18, n)
+18, 22, 29
 5000

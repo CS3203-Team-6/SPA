@@ -39,7 +39,7 @@ void Parser::populateNextEntity(int prevStmtLine, Statement &stmt, int currStmtL
 {
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 	//Add Next relation if is not the very first line or if not an else statement
-	if (prevStmtLine != 0 && stmt.getType() != 7 && (std::find(procedureStm.begin(), procedureStm.end(), prevStmtLine) != procedureStm.end())) {
+	if (prevStmtLine != 0 && pkb.getStmType(prevStmtLine) != stmType::ifStm && stmt.getType() != 7 && (std::find(procedureStm.begin(), procedureStm.end(), prevStmtLine) != procedureStm.end())) {
 		pkb.addNext(prevStmtLine, currStmtLine);
 	}
 
@@ -58,7 +58,10 @@ void Parser::populateNextEntity(int prevStmtLine, Statement &stmt, int currStmtL
 	//Add Next relation for WHILE statment type
 	if (stmt.getType() == 5) {
 		pkb.addNext(currStmtLine, stmt.getStmtLst().front().getStmtNum());
-		pkb.addNext(stmt.getStmtLst().back().getStmtNum(), currStmtLine);
+
+		if (stmt.getStmtLst().back().getType() != 7) {
+			pkb.addNext(stmt.getStmtLst().back().getStmtNum(), currStmtLine);
+		}
 	}
 }
 

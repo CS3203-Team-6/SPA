@@ -34,14 +34,17 @@ private:
 	std::unordered_map<std::string, std::string> declarations;
 	std::unordered_map<std::string, std::priority_queue<std::pair<int,int>>> synMap;
 	std::unordered_map<int, std::vector<std::string>> clMap;
+	std::priority_queue<std::pair<int, int>> nonSynPQ;
 	// these variables are used for storage of results
 	std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>> trivial;
 	std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>> nontrivial;
+	std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>> nonsynonym;
 	std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>> graph;
 	// sets are used for bookkeeping to prevent infinite calls
 	std::unordered_set<std::string> synSet;
 	std::set<std::pair<int,int>, std::greater<std::pair<int, int>>> clSet;
 	// processing functions - refer to .cpp for more details
+	bool isProg_line(std::string str);
 	void groupByClauseType(int t);
 	void createMaps(std::vector<std::string> synLst, std::pair<int,int> cl);
 	bool mapClauses(std::pair<int,int> cl, bool trivial);
@@ -58,6 +61,7 @@ public:
 	//Getter Functions
 	std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>> getTrivial();
 	std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>> getNonTrivial();
+	std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>> getNonSynonym();
 	//Priority and Syn Extractor (For Unit Testing -- this should otherwise be kept private)
 	std::pair<int, std::vector<std::string>> extractSuchThatSyn(int index);
 	std::pair<int, std::vector<std::string>> extractWithSyn(int index);

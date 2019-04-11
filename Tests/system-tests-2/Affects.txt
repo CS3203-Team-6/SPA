@@ -21,7 +21,7 @@ FALSE
 5 - select boolean, affects stmtNumber stmtNumber
 
 Select BOOLEAN such that Affects(22, 27)
-TRUE
+FALSE
 5000
 6 - select boolean, affects stmtNumber stmtNumber
 
@@ -71,7 +71,7 @@ FALSE
 15 - select synonym, affects stmtNumber stmt
 stmt s;
 Select s such that Affects(83, s)
-86
+none
 5000
 16 - select synonym, affects stmtNumber stmt
 stmt s;
@@ -121,5 +121,5 @@ none
 25 - select synonym, affects wildcard stmtNumber
 
 Select BOOLEAN such that Affects(_, 27)
-22
+FALSE
 5000
