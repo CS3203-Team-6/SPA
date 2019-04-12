@@ -268,7 +268,7 @@ int PKB::getTotalStmNo()
 
 stmType PKB::getStmType(int stm)
 {
-	if (stm <= 0 || stm > stmTypeList.size())
+	if (stm <= 0 || stm > (int) stmTypeList.size())
 	{
 		return nonExistant;
 	}
@@ -379,7 +379,7 @@ std::vector<int> PKB::getWhileStmContainer(int whileStm)
 
 std::string PKB::getProcOfStm(int stm)
 {
-	if (stm <= stmProcList.size() && stm > 0)
+	if (stm <= (int) stmProcList.size() && stm > 0)
 	{
 		return stmProcList.at(stm - 1);
 	}

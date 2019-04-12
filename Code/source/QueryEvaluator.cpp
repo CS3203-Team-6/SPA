@@ -342,8 +342,7 @@ std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evalua
 }
 
 /*
-The function evaluates
-pattern clauses
+The function evaluates pattern clauses
 */
 std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluatePatternCondition(
 	std::unordered_map<std::string, std::string> declarations,
@@ -420,6 +419,7 @@ std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evalua
 				PKB().getWhileStmControlVariablePair());
 		}
 	}
+	throw "evaluatePatternCondition failed";
 }
 
 /*
@@ -483,13 +483,13 @@ std::string QueryEvaluator::isSuchThatTrivial(std::string relation, std::string 
 				return truthValue(PKB().hasParentRelation());
 			}
 			else if (isInteger(secondArgument)) {
-				result = PKB().isChild(stoi(secondArgument)) > 0;
+				result = PKB().isChild(stoi(secondArgument));
 				return truthValue(result);
 			}
 		}
 		else if (isInteger(firstArgument)) {
 			if (secondArgument == "_") {
-				result = PKB().isParent(stoi(firstArgument)) > 0;
+				result = PKB().isParent(stoi(firstArgument));
 				return truthValue(result);
 			}
 			else if (isInteger(secondArgument)) {
@@ -507,13 +507,13 @@ std::string QueryEvaluator::isSuchThatTrivial(std::string relation, std::string 
 				return truthValue(PKB().hasParentRelation());
 			}
 			else if (isInteger(secondArgument)) {
-				result = PKB().isChild(stoi(secondArgument)) > 0;
+				result = PKB().isChild(stoi(secondArgument));
 				return truthValue(result);
 			}
 		}
 		else if (isInteger(firstArgument)) {
 			if (secondArgument == "_") {
-				result = PKB().isParent(stoi(firstArgument)) > 0;
+				result = PKB().isParent(stoi(firstArgument));
 				return truthValue(result);
 			}
 			else if (isInteger(secondArgument)) {
@@ -1108,6 +1108,7 @@ std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::getStm
 	else if (synType == "call") {
 		return ContainerUtil::to_mapvec(syn, PKB().getCallStms());
 	}
+	throw "getStmtsMap failed; Synonym Type is invalid";
 }
 
 /*

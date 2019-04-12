@@ -30,7 +30,7 @@ void TestWrapper::parse(std::string filename) {
 	std::string contents;
 
 	t.seekg(0, std::ios::end);
-	contents.reserve(t.tellg());
+	contents.reserve( (int) t.tellg());
 	t.seekg(0, std::ios::beg);
 
 	contents.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());

@@ -96,15 +96,18 @@ std::list<std::string> QueryParser::parse(std::string query) {
 		}
 
 		std::string currentClause = selectStatement.substr(0, nextIndex);
-		if (currentClause.find("such that") != -1 || (currentClause.find("and") != -1 && previousClause == "such that")) {
+		if (currentClause.find("such that") != -1 || (currentClause.find("and") != -1 &&
+													  previousClause == "such that")) {
 			previousClause = "such that";
 			suchThatClauses.push_back(currentClause);
 		}
-		else if (currentClause.find("pattern") != -1 || (currentClause.find("and") != -1 && previousClause == "pattern")) {
+		else if (currentClause.find("pattern") != -1 || (currentClause.find("and") != -1 &&
+														 previousClause == "pattern")) {
 			previousClause = "pattern";
 			patternClauses.push_back(currentClause);
 		}
-		else if (currentClause.find("with") != -1 || (currentClause.find("and") != -1 && previousClause == "with")) {
+		else if (currentClause.find("with") != -1 || (currentClause.find("and") != -1 &&
+													  previousClause == "with")) {
 			previousClause = "with";
 			withClauses.push_back(currentClause);
 		}
@@ -162,7 +165,8 @@ std::list<std::string> QueryParser::parse(std::string query) {
 		return result;
 	}
 
-	result = evaluateSelectConditions(declarations, selectedVar, suchThatCondition, patternCondition, withCondition);
+	result = evaluateSelectConditions(declarations, selectedVar,
+									  suchThatCondition, patternCondition, withCondition);
 
 	return result;
 }
@@ -261,7 +265,7 @@ std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
 	
 	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> output;
 
-	for(int i = 0; i < suchThatClause.size(); i++) {
+	for(size_t i = 0; i < suchThatClause.size(); i++) {
 		int openBracket = suchThatClause[i].find("(");
 		int comma = suchThatClause[i].find(",");
 		int closeBracket = suchThatClause[i].find(")");
@@ -298,7 +302,7 @@ std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
 	
 	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> output;
 
-	for (int i = 0; i < patternClause.size(); i++) {
+	for (size_t i = 0; i < patternClause.size(); i++) {
 		int openBracket = patternClause[i].find_first_of("(");
 		int comma = patternClause[i].find(",");
 		int closeBracket = patternClause[i].find_last_of(")");
@@ -336,7 +340,7 @@ std::vector<std::pair<std::string, std::string>>
 
 	std::vector<std::pair<std::string, std::string>> output;
 
-	for (int i = 0; i < withClause.size(); i++) {
+	for (size_t i = 0; i < withClause.size(); i++) {
 		int equalSign = withClause[i].find("=");
 		int strLen = withClause[i].length();
 		std::string firstArgs;
@@ -379,7 +383,7 @@ Get minimum value from the vector args
 int QueryParser::getMinimumValue(std::vector<int> indexes) {
 
 	int minIndex = maxInt;
-	for (int i = 0; i < indexes.size(); i++) {
+	for (size_t i = 0; i < indexes.size(); i++) {
 		if (indexes[i] != -1 && indexes[i] < minIndex) {
 			minIndex = indexes[i];
 		}

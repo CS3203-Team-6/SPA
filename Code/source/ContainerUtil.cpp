@@ -381,6 +381,7 @@ std::unordered_map<std::string, std::vector<std::string>> ContainerUtil::product
 			return crossProduct(oldTable, toAddTable);
 		}
 	}
+	throw "product method failed";
 }
 
 /*

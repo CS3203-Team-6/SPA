@@ -6,8 +6,7 @@ PKB DesignExtractor::pkb;
 /* 
  * The main public function that calls other function to populate different design entities in the PKB.
  */
-void DesignExtractor::extractDesigns()
-{
+void DesignExtractor::extractDesigns() {
 	pkb = PKB();
 
 	//Verification
@@ -28,8 +27,7 @@ void DesignExtractor::extractDesigns()
  * Checks if the procedures found in Call Statements are found inside the procedure list.
  * Iterates through the list of Call Statements and check if it exist in procedure list.
  */
-void DesignExtractor::verifyCalledProceduresPresence()
-{
+void DesignExtractor::verifyCalledProceduresPresence() {
 	std::unordered_set<std::string> calledProcedures = pkb.getAllCallees();
 	std::unordered_set<std::string> procedureList = pkb.getProcList();
 	for (std::string calledProcedure : calledProcedures) {
@@ -49,8 +47,8 @@ void DesignExtractor::verifyCalledProceduresPresence()
 /*
  * Processes the Follow* Design Entitiy in the SPA requirement.
  */
-void DesignExtractor::processFollowStar()
-{
+void DesignExtractor::processFollowStar() {
+
 	int stmtNum = pkb.getTotalStmNo();
 
 	//Process stmt list s where Follow*(index, s) is true
@@ -83,8 +81,8 @@ void DesignExtractor::processFollowStar()
 /*
  * Processes the Parent* Design Entitiy in the SPA requirement.
  */
-void DesignExtractor::processParentStar()
-{
+void DesignExtractor::processParentStar() {
+
 	int stmtNum = pkb.getTotalStmNo();
 
 	//Process stmt list s where Parent*(s, index) is true.
@@ -128,6 +126,7 @@ void DesignExtractor::processParentStar()
  * A valid toposort result would return {TestC, TestB, TestA} in a vector.
  */
 std::vector<std::string> DesignExtractor::topologicalSortProcedures() {
+
 	std::unordered_set<std::string> procList = pkb.getProcList();
 	int procListSize = procList.size();
 
@@ -199,6 +198,7 @@ void DesignExtractor::DFSRecursive(std::string procedure,
  * If/While Container Statements and Procecedures starting from the leaf node procedures.
  */
 void DesignExtractor::processAdvancedUsesAndModifies(std::vector<std::string> sortedProcedures) {
+
 	for (std::string procedure : sortedProcedures) {
 		//Populate Call Statement Uses/Modifies
 		processUsesCalls(procedure);
@@ -220,7 +220,7 @@ void DesignExtractor::processAdvancedUsesAndModifies(std::vector<std::string> so
 void DesignExtractor::processUsesCalls(std::string procedure) {
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
-	for (int i = 0; i < procedureStm.size(); i++) {
+	for (size_t i = 0; i < procedureStm.size(); i++) {
 		int currLine = procedureStm.at(i);
 		stmType type = pkb.getStmType(currLine);
 
@@ -241,7 +241,7 @@ void DesignExtractor::processUsesCalls(std::string procedure) {
 void DesignExtractor::processModifiesCalls(std::string procedure) {
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
-	for (int i = 0; i < procedureStm.size(); i++) {
+	for (size_t i = 0; i < procedureStm.size(); i++) {
 		int currLine = procedureStm.at(i);
 		stmType type = pkb.getStmType(currLine);
 
@@ -261,7 +261,7 @@ void DesignExtractor::processModifiesCalls(std::string procedure) {
  * the While/If Statement also MODIFY these variables.
  */
 void DesignExtractor::processModifiesContainers(std::string procedure) {
-	//TODO: Implement for Iteration 2
+
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
 	for (int i = procedureStm.size() - 1; i >= 0; i--) {
@@ -281,7 +281,7 @@ void DesignExtractor::processModifiesContainers(std::string procedure) {
  * also USE these variables.
  */
 void DesignExtractor::processUsesContainers(std::string procedure) {
-	//TODO: Implement for Iteration 2
+
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
 	for (int i = procedureStm.size() - 1; i >= 0; i--) {
@@ -302,10 +302,9 @@ void DesignExtractor::processUsesContainers(std::string procedure) {
  */
 void DesignExtractor::processUsesProcedures(std::string procedure)
 {
-	//TODO: Implement for Iteration 2
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
-	for (int i = 0; i < procedureStm.size(); i++) {
+	for (size_t i = 0; i < procedureStm.size(); i++) {
 		int currLine = procedureStm.at(i);
 		std::unordered_set<std::string> usedList = pkb.getVarUsedByStm(currLine);
 
@@ -322,10 +321,9 @@ void DesignExtractor::processUsesProcedures(std::string procedure)
  */
 void DesignExtractor::processModifiesProcedures(std::string procedure)
 {
-	//TODO: Implement for Iteration 2
 	std::vector<int> procedureStm = pkb.getStmList(procedure);
 
-	for (int i = 0; i < procedureStm.size(); i++) {
+	for (size_t i = 0; i < procedureStm.size(); i++) {
 		int currLine = procedureStm.at(i);
 		std::unordered_set<std::string> modifiedList = pkb.getVarModifiedByStm(currLine);
 
@@ -360,7 +358,7 @@ void DesignExtractor::processCallsStar(std::vector<std::string> sortedProcedures
 	}
 
 	//Process procedure list s where Calls*(procedure, s) is true.
-	for (int i = 0; i < sortedProcedures.size(); i++) {
+	for (size_t i = 0; i < sortedProcedures.size(); i++) {
 		std::string procedure = sortedProcedures.at(i);
 		std::unordered_set<std::string> calleeList = pkb.getCallee(procedure);
 
@@ -382,6 +380,7 @@ void DesignExtractor::processCallsStar(std::vector<std::string> sortedProcedures
 
 //get all if Statments and extrct Next entity
 void DesignExtractor::extractNextEntity() {
+
 	std::unordered_set<int> ifStmtList = pkb.getIfStms();
 	for (int stmt : ifStmtList) {
 		//pair<int,int> first int is last stmt of then block, second int is last stmt of else block
