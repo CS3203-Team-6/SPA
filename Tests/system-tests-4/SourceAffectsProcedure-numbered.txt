@@ -1,0 +1,48 @@
+procedure a{
+	while (a < b) {		//1
+		b = b + 1;		//2
+		a = b;			//3
+		call c;			//4
+		a = a;			//5
+	}
+	if ( b < c) then {	//6
+		b = b;			//7
+		call d;			//8
+		c = b;			//9
+	} else {
+		b = c;			//10
+		read c;			//11
+		print b;		//12
+	}
+}
+
+procedure b{
+	read b;				//13
+	while (b <1) {		//14
+		print c;		//15
+		c = c + 1;		//16
+		call d;			//17
+		b = a + c;		//18
+	}
+}
+
+procedure c{
+	c = c - 1;			//19
+	b = c + d;			//20
+	call d;				//21
+	a = b;				//22
+	c = c;				//23
+	read d;				//24
+}
+
+procedure d{
+	if (a == c) then {	//25
+		b = b + 1;		//26
+		d = d + b;		//27
+		print c;		//28
+	} else {
+		read c;			//29
+		d = b + 1;		//30
+	}
+	print c;			//31
+}

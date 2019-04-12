@@ -392,12 +392,13 @@ void DesignExtractor::extractNextEntity() {
 			pkb.addNext(ifLastStmt.second, pkb.getFollower(stmt));
 		}
 		else {
-			if (parent != 0) {
+			while (parent != 0) {
 				//if if statment have a while statment as parent, 
 				//next(last stmt of then block and else block, while statment)
 				if (pkb.getStmType(parent) == whileStm) {
 					pkb.addNext(ifLastStmt.first, parent);
 					pkb.addNext(ifLastStmt.second, parent);
+					break;
 				}
 				//if if statment have a if statment as parent, 
 				if (pkb.getStmType(parent) == ifStm) {
@@ -405,17 +406,10 @@ void DesignExtractor::extractNextEntity() {
 					if (pkb.getFollower(parent) != 0) {
 						pkb.addNext(ifLastStmt.first, pkb.getFollower(parent));
 						pkb.addNext(ifLastStmt.second, pkb.getFollower(parent));
-					}
-					//if parent if statement have no follower 
-					else {
-						//check the parent of parent if it is a while statment
-						//next(last stmt of then block and else block, while statment)
-						if (pkb.getStmType(pkb.getParent(parent)) == whileStm) {
-							pkb.addNext(ifLastStmt.first, pkb.getParent(parent));
-							pkb.addNext(ifLastStmt.second, pkb.getParent(parent));
-						}
+						break;
 					}
 				}
+				parent = pkb.getParent(parent);
 			}
 		}
 	}

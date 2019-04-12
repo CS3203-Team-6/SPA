@@ -12,7 +12,7 @@ namespace UnitTesting
 		TEST_METHOD(convertInfix1Variable)
 		{
 			std::string testStatement = "a";
-			std::string expectedOutput = "a";
+			std::string expectedOutput = " a ";
 			bool validExpression = ExpressionUtil::verifyInfixExpression(testStatement);
 
 			Assert::IsTrue(validExpression);
@@ -62,7 +62,7 @@ namespace UnitTesting
 		TEST_METHOD(test2OperandConversion)
 		{
 			std::string testStatement = "x+6";
-			std::string expectedConvert = "+ x 6";
+			std::string expectedConvert = " + x 6 ";
 
 			std::string output = ExpressionUtil::convertInfixToPrefix(testStatement);
 
@@ -72,7 +72,7 @@ namespace UnitTesting
 		TEST_METHOD(test3OperandConversion)
 		{
 			std::string testStatement = "xy+995+lcz";
-			std::string expectedConvert = "+ + xy 995 lcz";
+			std::string expectedConvert = " + + xy 995 lcz ";
 
 			std::string output = ExpressionUtil::convertInfixToPrefix(testStatement);
 
@@ -82,7 +82,7 @@ namespace UnitTesting
 		TEST_METHOD(test4OperandConversion)
 		{
 			std::string testStatement = "5*95+                vvv/4";
-			std::string expectedConvert = "+ * 5 95 / vvv 4";
+			std::string expectedConvert = " + * 5 95 / vvv 4 ";
 
 			std::string output = ExpressionUtil::convertInfixToPrefix(testStatement);
 
@@ -102,13 +102,26 @@ namespace UnitTesting
 			Assert::AreEqual(expectedConvert, testStatement);
 		}
 
+		TEST_METHOD(test4OperandWithBracketComplexPreProcess)
+		{
+			std::string testStatement = "(  ((5*(        6*   (a+b) )/ 5)    ))";
+
+
+
+			std::string expectedConvert = "( ( ( 5 * ( 6 * ( a + b ) ) / 5 ) ) )";
+
+			ExpressionUtil::expressionPreprocess(testStatement);
+
+			Assert::AreEqual(expectedConvert, testStatement);
+		}
+
 		TEST_METHOD(test4OperandWithBracketConversion)
 		{
 			std::string testStatement = "5*(a+b) / 5";
 
 
 
-			std::string expectedConvert = "/ * 5 + a b 5";
+			std::string expectedConvert = " / * 5 + a b 5 ";
 
 			std::string output = ExpressionUtil::convertInfixToPrefix(testStatement);
 
@@ -164,9 +177,30 @@ namespace UnitTesting
 			std::string testExpression = "a + ( ( b - c) )";
 
 			std::string output = ExpressionUtil::convertInfixToPrefix(testExpression);
-			std::string expectedOutput = "+ a - b c";
+			std::string expectedOutput = " + a - b c ";
 			Assert::AreEqual(expectedOutput, output);
 
 		}
+
+		TEST_METHOD(testValidExpressionComplexConversion)
+		{
+			std::string testExpression = "shoes + (pants * (sandals + 1) / (2 + (3 * ( (4 % 3) + 5) / (heels * 2 + (4 * 3))))) * shirt";
+
+			std::string output = ExpressionUtil::convertInfixToPrefix(testExpression);
+			std::string expectedOutput = " + shoes * pants + sandals 1 ";
+			Assert::AreEqual(expectedOutput, output);
+
+		}
+
+		TEST_METHOD(testValidExpressionComplexContainingConversion)
+		{
+			std::string testExpression = "sandals + 1";
+
+			std::string output = ExpressionUtil::convertInfixToPrefix(testExpression);
+			std::string expectedOutput = " + sandals 1 ";
+			Assert::AreEqual(expectedOutput, output);
+
+		}
+
 	};
 }

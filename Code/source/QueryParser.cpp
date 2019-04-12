@@ -239,7 +239,11 @@ std::vector<std::string> QueryParser::splitSelectParameter(std::string selectSta
 	std::vector<std::string> output;
 
 	int firstSpace = selectStatement.find_first_of(whitespace);
-	std::string varName = StringUtil::removeAllWhitespaces(selectStatement.substr(firstSpace));
+	std::string varName;
+
+	if (firstSpace != -1) {
+		varName = StringUtil::removeAllWhitespaces(selectStatement.substr(firstSpace));
+	}
 
 	if (varName.find("<") != -1 && varName.find(">") != -1) {
 		varName = varName.substr(1, varName.length() - 2);
@@ -272,6 +276,11 @@ std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
 		int strLen = suchThatClause[i].length();
 		std::string condition;
 
+		if (openBracket == -1 || comma == -1 || closeBracket == -1) {
+			output.push_back(std::make_pair("", std::make_pair("", "")));
+			continue;
+		}
+
 		if (suchThatClause[i].find("such") != -1) {
 			condition =
 				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(9, openBracket - 9));
@@ -280,12 +289,27 @@ std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
 			condition =
 				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(3, openBracket - 3));
 		}
-		std::string firstVar =
-			StringUtil::removeAllWhitespaces(suchThatClause[i].substr(openBracket + 1,
-																	  comma - openBracket - 1));
-		std::string secondVar =
-			StringUtil::removeAllWhitespaces(suchThatClause[i].substr(comma + 1,
-																	  closeBracket - comma - 1));
+
+		std::string firstVar;
+		std::string secondVar;
+
+		if ((comma - openBracket - 1) < 0) {
+			firstVar = "";
+		}
+		else {
+			firstVar =
+				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(openBracket + 1,
+					comma - openBracket - 1));
+		}
+		
+		if ((closeBracket - comma - 1) < 0) {
+			secondVar = "";
+		}
+		else {
+			secondVar =
+				StringUtil::removeAllWhitespaces(suchThatClause[i].substr(comma + 1,
+					closeBracket - comma - 1));
+		}
 
 		output.push_back(make_pair(condition, make_pair(firstVar, secondVar)));
 	}

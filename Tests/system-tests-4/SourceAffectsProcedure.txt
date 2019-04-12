@@ -1,0 +1,44 @@
+procedure a{
+	while (a < b) {
+		b = b + 1;
+		a = b;
+		call c;
+		a = a;
+	}
+	if ( b < c) {
+		b = b;
+		call d;
+		c = b;
+	}
+}
+
+procedure b{
+	read b;
+	while (b <1) {
+		print c;
+		c = c + 1;
+		call c;
+		b = a + c;
+	}
+}
+
+procedure c{
+	c = c - 1;
+	b = c + d;
+	call d;
+	a = b;
+	c = d;
+	read d;
+}
+
+procedure d{
+	if (a == c) {
+		b = b + 1;
+		d = d + b;
+		print c;
+	} else {
+		read b;
+		d = b + 1;
+	}
+	print c;
+}

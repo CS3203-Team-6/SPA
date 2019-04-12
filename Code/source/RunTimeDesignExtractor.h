@@ -105,7 +105,7 @@ private:
 	bool DFSRecursiveCheckAffecting(int start, int current, std::unordered_set<int>& cfgPath, bool isStart);
 
 	//For DFSing Affects(_, int)
-	bool DFSRecursiveCheckAffectedBy(int end, int current, std::unordered_set<int>& cfgPath, bool isStart);
+	bool DFSRecursiveCheckAffectedBy(int end, int current, std::unordered_set<int>& cfgPath, bool isStart, std::unordered_set<std::string> & relevantVar);
 
 	//For DFSing Affects(synonym, int)
 	void DFSRecursiveGetAffectingList(int end, int current, std::unordered_set<int>& cfgPath, bool isStart, std::vector<int>& affectedByList, std::unordered_set<std::string>& relevantVar);

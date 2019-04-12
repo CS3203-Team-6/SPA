@@ -80,9 +80,6 @@
     <ClCompile Include="Utility\ConditionalExpTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\ContainerUtilTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\ExpressionUtilTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,6 +120,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PKB\CtrlVarStorageTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\QueryUtilityTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

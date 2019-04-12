@@ -1,18 +1,6 @@
 #pragma once
 
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <unordered_set>
-#include <sstream>
-#include <algorithm>
-
-#include "PKB.h"
 #include "QueryEvaluator.h"	
-#include "LexicalToken.h"
-#include "ExpressionUtil.h"
-#include "ContainerUtil.h"
 
 /*
 Projects result of the query 
@@ -23,18 +11,78 @@ std::list<std::string> QueryEvaluator::projectResult(
 	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> suchThatCondition,
 	std::vector<std::pair<std::string, std::pair<std::string, std::string>>> patternCondition,
 	std::vector<std::pair<std::string, std::string>> withCondition) {
-	std::pair<std::string, std::unordered_map<std::string, std::vector<std::string>>>
-		resultPair = evaluateTable(declarations, suchThatCondition, patternCondition, withCondition);
-	std::string status = resultPair.first;
-	std::unordered_map<std::string, std::vector<std::string>> resultTable = resultPair.second;
+	Optimizer op = Optimizer(suchThatCondition, withCondition, patternCondition, selectedVar, declarations);
+	op.groupClause();
+	std::vector<std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>>> notSelectedGroup = op.getTrivial();
+	std::vector<std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>>> selectedGroup = op.getNonTrivial();
+	std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>> trivialGroup = op.getNonSynonym();
+	std::vector<std::unordered_map<std::string, std::vector<std::string>>> selectedMaps;
+	std::string status = isTrivialGroupTrue(trivialGroup);
 	std::list<std::string> resultList;
+	for (std::vector<std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>>>::size_type i = 0;
+		i != notSelectedGroup.size(); i++) {
+		if (status == "FALSE") {
+			break;
+		}
+		if (evaluateGroup(declarations, notSelectedGroup[i]).begin()->second.size() == 0) {
+			status = "FALSE";
+		}
+	}
+	std::unordered_set<std::string> selectedNotInClauses;
+	for (std::vector<std::string>::size_type i = 0; i != selectedVar.size(); i++) {
+		selectedNotInClauses.insert(selectedVar[i]);
+	}
+	for (std::vector<std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>>>::size_type i = 0;
+		i != selectedGroup.size(); i++) {
+		if (status == "FALSE") {
+			break;
+		}
+		std::unordered_map<std::string, std::vector<std::string>> currentGroup = evaluateGroup(
+			declarations, selectedGroup[i]);
+		if (currentGroup.begin()->second.size() == 0) {
+			status = "FALSE";
+		}
+		std::unordered_map<std::string, std::vector<std::string>> currentProjection = getGroupProjectTable(
+			declarations, selectedVar, currentGroup);
+		for (auto it = currentProjection.begin(); it != currentProjection.end(); ++it) {
+			selectedNotInClauses.erase(it->first);
+		}
+		selectedMaps.push_back(getGroupProjectTable(declarations, selectedVar, 
+			evaluateGroup(declarations, selectedGroup[i])));
+	}
 	if (selectedVar[0] == "BOOLEAN") {
 		resultList.push_back(status);
 	}
-	else if (status == "TRUE" && (resultTable.size() == 0 || resultTable.begin()->second.size() != 0)) {
-			std::unordered_map<std::string, std::vector<std::string>> projectTable =
-				getProjectTable(declarations, selectedVar, resultTable);
-			resultList = toStringList(declarations, selectedVar, projectTable);
+	else if (status == "TRUE") {
+		std::unordered_map<std::string, std::vector<std::string>> projectMap;
+		for (std::vector<std::unordered_map<std::string, std::vector<std::string>>>::size_type i = 0;
+			i != selectedMaps.size(); i++) {
+			projectMap = QueryUtility::product(projectMap, selectedMaps[i]);
+		}
+		for (std::unordered_set<std::string>::iterator it = selectedNotInClauses.begin();
+			it != selectedNotInClauses.end(); ++it) {
+			std::string pointer = *it;
+			if (QueryUtility::hasReference(pointer)
+				&& (projectMap.count(QueryUtility::attrOf(pointer)) == 0)) {
+				projectMap = QueryUtility::product(projectMap,
+					QueryUtility::getStmtsMap(declarations, QueryUtility::attrOf(pointer)));
+			}
+			else if (!QueryUtility::hasReference(pointer)) {
+				projectMap = QueryUtility::product(projectMap,
+					QueryUtility::getStmtsMap(declarations, pointer));
+			}
+		}
+		resultList = toStringList(declarations, selectedVar, projectMap);
 	}
 	return resultList;
 }
@@ -54,8 +102,8 @@ std::list<std::string> QueryEvaluator::toStringList(
 		for (std::vector<std::string>::size_type j = 0; j != selectedVar.size(); j++) {
 			std::string currentVar = selectedVar[j];
 			if (tuple.size() == 0) {
-				if (hasReference(currentVar)) {
-					std::string attr = attrOf(currentVar);
+				if (QueryUtility::hasReference(currentVar)) {
+					std::string attr = QueryUtility::attrOf(currentVar);
 					tuple = toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
 				}
 				else {
@@ -63,8 +111,8 @@ std::list<std::string> QueryEvaluator::toStringList(
 				}
 			}
 			else {
-				if (hasReference(currentVar)) {
-					std::string attr = attrOf(currentVar);
+				if (QueryUtility::hasReference(currentVar)) {
+					std::string attr = QueryUtility::attrOf(currentVar);
 					tuple = tuple + " " +
 						toAttrRefVal(declarations, currentVar, projectTable[attr][i]);
 				}
@@ -78,1162 +126,88 @@ std::list<std::string> QueryEvaluator::toStringList(
 	return resultList;
 }
 
+std::string QueryEvaluator::isTrivialGroupTrue(std::vector<
+	std::pair<std::pair<
+	std::string, std::string>, std::pair<std::string, std::string>>>
+	trivialGroup) {
+	std::string status = "TRUE";
+	for (std::vector<
+		std::pair<std::pair<
+		std::string, std::string>, std::pair<std::string, std::string>>>::size_type i = 0;
+		i != trivialGroup.size(); i++) {
+		std::string clauseType = trivialGroup[i].first.first;
+		std::string relation = trivialGroup[i].first.second;
+		std::string firstArgument = trivialGroup[i].second.first;
+		std::string secondArgument = trivialGroup[i].second.second;
+		if ((clauseType == "st" 
+			&& (SuchThatEvaluator::isTrivial(relation, firstArgument, secondArgument) == "FALSE"))
+			|| (clauseType == "with" && (WithEvaluator::isTrivial(firstArgument, secondArgument) == "FALSE"))) {
+			status = "FALSE";
+			break;
+		}
+	}
+	return status;
+}
+
 /*
 Get the project table  
 with selected variables as 
 the columns from resultTable.
 */
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::getProjectTable(
+std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::getGroupProjectTable(
 	std::unordered_map<std::string, std::string> declarations,
 	std::vector<std::string> selectedVar,
-	std::unordered_map<std::string, std::vector<std::string>> resultTable) {
-	std::unordered_map<std::string, std::vector<std::string>> projectTable;
-	std::vector<std::string> notInResult;
+	std::unordered_map<std::string, std::vector<std::string>> groupTable) {
+	std::unordered_map<std::string, std::vector<std::string>> groupProjectTable;
 	for (std::vector<std::string>::size_type i = 0; i != selectedVar.size(); i++) {
 		std::string currentVar = selectedVar[i];
-		if (hasReference(currentVar)) {
-			std::string attr = attrOf(currentVar);
-			if (resultTable.count(attr) == 0) {
-				notInResult.push_back(attr);
-			}
-			else {
-				projectTable.insert({ attr, resultTable[attr] });
+		if (QueryUtility::hasReference(currentVar)) {
+			std::string attr = QueryUtility::attrOf(currentVar);
+			if (groupTable.count(attr) == 1) {
+				groupProjectTable.insert({ attr, groupTable[attr] });
 			}
 		}
-		else if (resultTable.count(currentVar) == 0) {
-			notInResult.push_back(currentVar);
-		}
-		else {
-			projectTable.insert({ currentVar, resultTable[currentVar] });
+		if (groupTable.count(currentVar) == 1) {
+			groupProjectTable.insert({ currentVar, groupTable[currentVar] });
 		}
 	}
-	for (std::vector<std::string>::size_type i = 0; i != notInResult.size(); i++) {
-		projectTable = ContainerUtil::product(projectTable, getStmtsMap(declarations, notInResult[i]));
-	}
-	return projectTable;
+	return groupProjectTable;
 }
 
 /*
 Merge all the results of each clause
 */
-std::pair<std::string, std::unordered_map<std::string, std::vector<std::string>>>
-	QueryEvaluator::evaluateTable(
-		std::unordered_map<std::string, std::string> declarations,
-		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> suchThatCondition,
-		std::vector<std::pair<std::string, std::pair<std::string, std::string>>> patternCondition,
-		std::vector<std::pair<std::string, std::string>> withCondition) {
-
+std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluateGroup(
+	std::unordered_map<std::string, std::string> declarations,
+	std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>
+	groupClause) {
 	std::unordered_map<std::string, std::vector<std::string>> resultTable;
-	std::string status = "TRUE";
-	if (suchThatCondition.size() != 0) {
-		for (std::vector<std::pair<std::string, std::pair<std::string, std::string>>>::size_type
-			 i = 0; i != suchThatCondition.size(); i++) {
-			std::string relation = suchThatCondition[i].first;
-			std::string firstArgument = suchThatCondition[i].second.first;
-			std::string secondArgument = suchThatCondition[i].second.second;
-			std::string trivialness = isSuchThatTrivial(relation, firstArgument, secondArgument);
-			if (trivialness == "false") {
-				status = "FALSE";
-				break;
-			}
-			if (trivialness == "not trivial") {
-				std::unordered_map<std::string, std::vector<std::string>>
-					newTable = evaluateSuchThat(declarations, relation, firstArgument,
-												secondArgument);
-				resultTable = ContainerUtil::product(resultTable, newTable);
-				if (resultTable.begin()->second.size() == 0) {
-					status = "FALSE";
-					break;
-				}
-			}
+	std::unordered_map<std::string, std::vector<std::string>> toAddTable;
+	for (std::vector<
+		std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string>>>::size_type
+		i = 0; i != groupClause.size(); i++) {
+		std::string clauseType = groupClause[i].first.first;
+		std::string relation = groupClause[i].first.second;
+		std::string firstArgument = groupClause[i].second.first;
+		std::string secondArgument = groupClause[i].second.second;
+		if (clauseType == "st") {
+			toAddTable = SuchThatEvaluator::evaluate(declarations, relation, firstArgument,
+				secondArgument);
 		}
-	}
-	if (patternCondition.size() != 0 && status == "TRUE") {
-		for (std::vector<std::pair<std::string, std::pair<std::string, std::string>>>::size_type i = 0;
-			i != patternCondition.size();
-			i++) {
-			std::unordered_map<std::string, std::vector<std::string>>
-				newTable = evaluatePatternCondition( declarations, patternCondition[i]);
-			resultTable = ContainerUtil::product(resultTable, newTable);
-			if (resultTable.begin()->second.size() == 0) {
-				status = "FALSE";
-				break;
-			}
-		}
-	}
-	if (withCondition.size() != 0 && status == "TRUE") {
-		for (std::vector<std::pair<std::string, std::string>>::size_type i = 0;
-			i != withCondition.size();
-			i++) {
-			std::string left = withCondition[i].first;
-			std::string right = withCondition[i].second;
-			std::string trivialness = isWithTrivial(left, right);
-			if (trivialness == "false") {
-				status = "FALSE";
-				break;
-			}
-			if (trivialness == "not trivial") {
-				std::unordered_map<std::string, std::vector<std::string>>
-					newTable = evaluateWithCondition( declarations, left, right);
-				resultTable = ContainerUtil::product(resultTable, newTable);
-				if (resultTable.begin()->second.size() == 0) {
-					status = "FALSE";
-					break;
-				}
-			}
-		}
-	}
-	std::pair<std::string, std::unordered_map<std::string,
-		std::vector<std::string>>> resultPair(status, resultTable);
-	return resultPair;
-}
-
-/*
-The function checks if 
-the with clause is trivial
-and evaluates if it is
-*/
-std::string QueryEvaluator::isWithTrivial(std::string left, std::string right) {
-	if ((isQuoted(left) && isQuoted(right)) || (isInteger(left) && isInteger(right))) {
-		return truthValue(left == right);
-	}
-	return "not trivial";
-}
-
-/*
-The function returns a 
-table consist of 2 columns.
-The first one is the attribute
-value column and the second one 
-is the reference value column, but 
-the key is changed to "name". 
-For example, if attr is r.varName,
-then it returns table with column r 
-and r.varName, but the r.varName is 
-changed to "name".
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluateWithPair(
-	std::unordered_map<std::string, std::string> declarations,
-	std::string attr) {
-	std::string attrType = declarations[attr];
-	if (attrType == "call") {
-		return ContainerUtil::to_mapvec(attr, "name", PKB().getStmProcCallPairs());
-	}
-	else if (attrType == "print") {
-		return ContainerUtil::to_mapvec(attr, "name", PKB().getPrintPairs());
-	}
-	else if (attrType == "read") {
-		return ContainerUtil::to_mapvec(attr, "name", PKB().getReadPairs());
-	}
-	else {
-		std::vector<std::string> attrVal= getStmtsMap(declarations, attr)[attr];
-		std::unordered_map<std::string, std::vector<std::string>> doubleMap;
-		doubleMap.insert({ {attr, attrVal}, {"name", attrVal} });
-		return doubleMap;
-	}
-}
-
-
-/*
-The function evaluates the non-trivial
-with clauses.
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluateWithCondition(
-	std::unordered_map<std::string, std::string> declarations,
-	std::string left, std::string right) {
-	std::unordered_map<std::string, std::vector<std::string>> withMap;
-	if (isSynonym(left) && !hasReference(right) && !isSynonym(right)) {
-		if (stoi(right) < PKB().getTotalStmNo()) {
-			return ContainerUtil::to_mapvec(left, right);
-		}
-		std::vector<std::string> emptyVec;
-		withMap.insert({ left, emptyVec });
-		return withMap;
-	}
-	else if (!hasReference(left) && !isSynonym(left) && isSynonym(right)) {
-		if (stoi(left) < PKB().getTotalStmNo()) {
-			return ContainerUtil::to_mapvec(right, left);
-		}
-		std::vector<std::string> emptyVec;
-		withMap.insert({ right, emptyVec });
-		return withMap;
-	}
-	else if (hasReference(left) && !hasReference(right) && !isSynonym(right)) {
-		std::string attr = attrOf(left);
-		std::string ref = refOf(left);
-		std::string attrType = declarations[attr];
-		if ((attrType == "call") && (ref == "procName")) {
-			return ContainerUtil::to_mapvec(attr, PKB().getStmCalling(trimFrontEnd(right)));
-		}
-		else if ((attrType == "read") && (ref == "varName")) {
-			return evaluateSuchThat(declarations, "Modifies", attr, right);
-		}
-		else if ((attrType == "print") && (ref == "varName")) {
-			return evaluateSuchThat(declarations, "Uses", attr, right);
+		else if (clauseType == "pattern") {
+			toAddTable = PatternEvaluator::evaluate(declarations, relation, firstArgument,
+				secondArgument);
 		}
 		else {
-			std::vector<std::string> attrVal = getStmtsMap(declarations, attr)[attr];
-			if (!isQuoted(right)
-				&& std::find(attrVal.begin(), attrVal.end(), right) != attrVal.end()) {
-				return ContainerUtil::to_mapvec(attr, right);
-			}
-			if (isQuoted(right)
-				&& std::find(attrVal.begin(), attrVal.end(), trimFrontEnd(right)) != attrVal.end()) {
-				return ContainerUtil::to_mapvec(attr, trimFrontEnd(right));
-			}
-			std::vector<std::string> emptyVec;
-			withMap.insert({ attr, emptyVec });
-			return withMap;
-		}
-	}
-	else if (!hasReference(left) && !isSynonym(left) && hasReference(right)) {
-		std::string attr = attrOf(right);
-		std::string ref = refOf(right);
-		std::string attrType = declarations[attr];
-		if ((attrType == "call") && (ref == "procName")) {
-			return ContainerUtil::to_mapvec(attr, PKB().getStmCalling(trimFrontEnd(left)));
-		}
-		else if ((attrType == "read") && (ref == "varName")) {
-			return evaluateSuchThat(declarations, "Modifies", attr, left);
-		}
-		else if ((attrType == "print") && (ref == "varName")) {
-			return evaluateSuchThat(declarations, "Uses", attr, left);
-		}
-		else {
-			std::vector<std::string> attrVal = getStmtsMap(declarations, attr)[attr];
-			if (!isQuoted(left)
-				&& std::find(attrVal.begin(), attrVal.end(), left) != attrVal.end()) {
-				return ContainerUtil::to_mapvec(attr, left);
-			}
-			if (isQuoted(left)
-				&& std::find(attrVal.begin(), attrVal.end(), trimFrontEnd(left)) != attrVal.end()) {
-				return ContainerUtil::to_mapvec(attr, trimFrontEnd(left));
-			}
-			std::vector<std::string> emptyVec;
-			withMap.insert({ attr, emptyVec });
-			return withMap;
-		}
-	}
-	else if (hasReference(left) && isSynonym(right)) {
-		std::string attr = attrOf(left);
-		return ContainerUtil::intersectOne(getStmtsMap(declarations, attr),
-			getStmtsMap(declarations, right));
-	}
-	else if (isSynonym(left) && hasReference(right)) {
-		std::string attr = attrOf(right);
-		return ContainerUtil::intersectOne(getStmtsMap(declarations, left),
-			getStmtsMap(declarations, attr));
-	}
-	else {
-		std::string leftAttr = attrOf(left);
-		std::string leftRef = refOf(left);
-		std::string leftAttrType = declarations[leftAttr];
-		std::string rightAttr = attrOf(right);
-		std::string rightAttrType = declarations[rightAttr];
-		if (leftRef == "stmt#" || leftRef == "value") {
-			return ContainerUtil::intersectOne(getStmtsMap(declarations, leftAttr),
-				getStmtsMap(declarations, rightAttr));
-		}
-		else {
-			return ContainerUtil::intersectTwo(evaluateWithPair(declarations, leftAttr),
-				evaluateWithPair(declarations, rightAttr));
-		}
-	}
-}
-
-/*
-The function evaluates pattern clauses
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluatePatternCondition(
-	std::unordered_map<std::string, std::string> declarations,
-	std::pair<std::string, std::pair<std::string, std::string>> pattern) {
-	std::string patternSynonym = pattern.first;
-	std::string patternType = declarations[patternSynonym];
-	std::string leftArgument = pattern.second.first;
-	std::string rightArgument = pattern.second.second;
-
-	if (patternType == "assign") {
-		if (rightArgument == "_") {
-			if (leftArgument == "_") {
-				return getStmtsMap(declarations, patternSynonym);
-			}
-			else if (isQuoted(leftArgument)) {
-				return ContainerUtil::to_mapvec(patternSynonym,
-					PKB().findPattern(trimFrontEnd(leftArgument), "", false));
-			}
-			return ContainerUtil::to_mapvec(patternSynonym, leftArgument, 
-				PKB().findPatternPairs("", false));
-		}
-		else if (isQuoted(rightArgument)) {
-			rightArgument = trimFrontEnd(rightArgument);
-			rightArgument = ExpressionUtil::convertInfixToPrefix(rightArgument);
-			if (leftArgument == "_") {
-				return ContainerUtil::to_mapvec(patternSynonym, 
-					PKB().findPattern(rightArgument, true));
-			}
-			else if (isQuoted(leftArgument)) {
-				return ContainerUtil::to_mapvec(patternSynonym,
-					PKB().findPattern(trimFrontEnd(leftArgument), rightArgument, true));
-			}
-			return ContainerUtil::to_mapvec(patternSynonym, leftArgument, 
-				PKB().findPatternPairs(rightArgument, true));
-		}
-		else {
-			rightArgument = trimFrontEnd(trimFrontEnd(rightArgument));
-			rightArgument = ExpressionUtil::convertInfixToPrefix(rightArgument);
-			if (leftArgument == "_") {
-				return ContainerUtil::to_mapvec(patternSynonym, 
-					PKB().findPattern(rightArgument, false));
-			}
-			else if (isQuoted(leftArgument)) {
-				return ContainerUtil::to_mapvec(patternSynonym,
-					PKB().findPattern(trimFrontEnd(leftArgument), rightArgument, false));
-			}
-			return ContainerUtil::to_mapvec(patternSynonym, leftArgument, 
-				PKB().findPatternPairs(rightArgument, false));
-		}
-	}
-	if (patternType == "if") {
-		if (leftArgument == "_") {
-			return ContainerUtil::to_mapvec(patternSynonym, PKB().getAllIfWithControls());
-		}
-		else if (isQuoted(leftArgument)) {
-			return ContainerUtil::to_mapvec(patternSynonym, PKB().getIfStmWithControlVariable(
-				trimFrontEnd(leftArgument)));
-		}
-		else {
-			return ContainerUtil::to_mapvec(patternSynonym, leftArgument,
-				PKB().getIfStmControlVariablePair());
-		}
-	}
-	if (patternType == "while") {
-		if (leftArgument == "_") {
-			return ContainerUtil::to_mapvec(patternSynonym, PKB().getAllWhileWithControls());
-		}
-		else if (isQuoted(leftArgument)) {
-			return ContainerUtil::to_mapvec(patternSynonym, PKB().getWhileStmWithControlVariable(
-				trimFrontEnd(leftArgument)));
-		}
-		else {
-			return ContainerUtil::to_mapvec(patternSynonym, leftArgument,
-				PKB().getWhileStmControlVariablePair());
-		}
-	}
-	throw "evaluatePatternCondition failed";
-}
-
-/*
-THe function evaluates the such that conditions 
-which gives boolean answer
-*/
-std::string QueryEvaluator::isSuchThatTrivial(std::string relation, std::string firstArgument, 
-	std::string secondArgument) {
-	bool result;
-	if (relation == "Follows") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasFollowRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getStmFollowedBy(stoi(secondArgument)) > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().getFollower(stoi(firstArgument)) > 0;
-				return truthValue(result);
- 			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getFollower(stoi(firstArgument)) == stoi(secondArgument);
-				return truthValue(result);
-			};
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	else if (relation == "Follows*") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasFollowRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getStmFollowedBy(stoi(secondArgument)) > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().getFollower(stoi(firstArgument)) > 0;
-				return truthValue(result);
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().hasFollowStarPair(stoi(firstArgument), stoi(secondArgument));
-				return truthValue(result);
-			}
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	else if (relation == "Parent") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasParentRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().isChild(stoi(secondArgument));
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().isParent(stoi(firstArgument));
-				return truthValue(result);
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getParent(stoi(secondArgument)) == stoi(firstArgument);
-				return truthValue(result);
-			}
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	else if (relation == "Parent*") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasParentRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().isChild(stoi(secondArgument));
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().isParent(stoi(firstArgument));
-				return truthValue(result);
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().hasAncDescPair(stoi(firstArgument), stoi(secondArgument));
-				return truthValue(result);
-			}
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	else if (relation == "Uses") {
-		if (isInteger(firstArgument)) {
-			if (isQuoted(secondArgument)) {
-				result = PKB().isStmUsing(stoi(firstArgument), trimFrontEnd(secondArgument));
-				return truthValue(result);
-			}
-			else if (secondArgument == "_") {
-				result = PKB().getVarUsedByStm(stoi(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isQuoted(firstArgument)) {
-			if (isQuoted(secondArgument)) {
-				result = PKB().isProcUsing(trimFrontEnd(firstArgument), trimFrontEnd(secondArgument));
-				return truthValue(result);
-			}
-			else if (secondArgument == "_") {
-				result = PKB().getVarUsedByProc(trimFrontEnd(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-	}
-	else if (relation == "Modifies") {
-		if (isInteger(firstArgument)) {
-			if (isQuoted(secondArgument)) {
-				result = PKB().isStmModifying(stoi(firstArgument), trimFrontEnd(secondArgument));
-				return truthValue(result);
-			}
-			else if (secondArgument == "_") {
-				result = PKB().getVarModifiedByStm(stoi(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isQuoted(firstArgument)) {
-			if (isQuoted(secondArgument)) {
-				result = PKB().isProcModifying(trimFrontEnd(firstArgument),
-											   trimFrontEnd(secondArgument));
-				return truthValue(result);
-			}
-			else if (secondArgument == "_") {
-				result = PKB().getVarModifiedByProc(trimFrontEnd(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-	}
-	else if (relation == "Calls") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasCallRelation());
-			}
-			else if (isQuoted(secondArgument)) {
-				return truthValue(PKB().isCallee(trimFrontEnd(secondArgument)));
-			}
-		}
-		else if (isQuoted(firstArgument)) {
-			if (secondArgument == "_") {
-				return truthValue(PKB().isCaller(trimFrontEnd(firstArgument)));
-			}
-			else if (isQuoted(secondArgument)) {
-				result = PKB().getCallee(trimFrontEnd(firstArgument)).count(trimFrontEnd(secondArgument)) == 1;
-				return truthValue(result);
-			}
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	else if (relation == "Calls*") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasCallRelation());
-			}
-			else if (isQuoted(secondArgument)) {
-				return truthValue(PKB().isCallee(trimFrontEnd(secondArgument)));
-			}
-		}
-		else if (isQuoted(firstArgument)) {
-			if (secondArgument == "_") {
-				return truthValue(PKB().isCaller(trimFrontEnd(firstArgument)));
-			}
-			else if (isQuoted(secondArgument)) {
-				result = PKB().hasCallStarPair(trimFrontEnd(firstArgument),
-											   trimFrontEnd(secondArgument));
-				return truthValue(result);
-			}
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	if (relation == "Next") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasNextRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getPrev(stoi(secondArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().getNext(stoi(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getNext(stoi(firstArgument)).count(stoi(secondArgument)) == 1;
-				return truthValue(result);
-			};
-		}
-		else if (firstArgument == secondArgument) {
-			return "false";
-		}
-	}
-	if (relation == "Next*") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasNextRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().getPrev(stoi(secondArgument)).size() > 0;
-				return truthValue(result);
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				result = PKB().getNext(stoi(firstArgument)).size() > 0;
-				return truthValue(result);
-			}
-			else if (isInteger(secondArgument)) {
-				result = PKB().hasNextStarPair(stoi(firstArgument), stoi(secondArgument)) == 1;
-				return truthValue(result);
-			};
-		}
-	}
-	if (relation == "Affects") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasAffectsRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				return truthValue(PKB().isAffected(stoi(secondArgument)));
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				return truthValue(PKB().isAffector(stoi(firstArgument)));
-			}
-			else if (isInteger(secondArgument)) {
-				return truthValue(PKB().hasAffectStarPair(stoi(firstArgument), stoi(secondArgument)));
-			}
-		}
-	}
-	if (relation == "Affects*") {
-		if (firstArgument == "_") {
-			if (secondArgument == "_") {
-				return truthValue(PKB().hasAffectsRelation());
-			}
-			else if (isInteger(secondArgument)) {
-				return truthValue(PKB().isAffected(stoi(secondArgument)));
-			}
-		}
-		else if (isInteger(firstArgument)) {
-			if (secondArgument == "_") {
-				return truthValue(PKB().isAffector(stoi(firstArgument)));
-			}
-			else if (isInteger(secondArgument)) {
-				return truthValue(PKB().hasAffectStarPair(stoi(firstArgument), stoi(secondArgument)));
-			}
-		}
-	}
-	return "not trivial";
-}
-
-/*
-The function evaluates the non-trivial 
-Such That Conditions.
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::evaluateSuchThat(
-	std::unordered_map<std::string, std::string> declarations,
-	std::string relation, std::string firstArgument, std::string secondArgument) {
-	std::unordered_map<std::string, std::vector<std::string>> tableResult;
-	if (relation == "Follows") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllFollowed());
-			}
-			else if (isInteger(secondArgument)) {
-				int result = PKB().getStmFollowedBy(stoi(secondArgument));
-				if (result > 0) {
-					tableResult = ContainerUtil::to_mapvec(firstArgument, result);
-				}
-				else {
-					std::vector<std::string> emptyVec;
-					tableResult.insert({ firstArgument, emptyVec });
-				}
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getFollowPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllFollowers());
-			}
-			else if (isInteger(firstArgument)) {
-				int result = PKB().getFollower(stoi(firstArgument));
-				if (result > 0) {
-					tableResult = ContainerUtil::to_mapvec(secondArgument, result);
-				}
-				else {
-					std::vector<std::string> emptyVec;
-					tableResult.insert({ secondArgument, emptyVec });
-				}
-			}
-		}
-	}
-	else if (relation == "Follows*") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllFollowed());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllFollowedBy(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getFollowStarPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllFollowers());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllFollowing(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Parent") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllParents());
-			}
-			else if (isInteger(secondArgument)) {
-				int result = PKB().getParent(stoi(secondArgument));
-				if (result > 0) {
-					tableResult = ContainerUtil::to_mapvec(firstArgument, result);
-				}
-				else {
-					std::vector<std::string> emptyVec;
-					tableResult.insert({ firstArgument, emptyVec });
-				}
-
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getParentChildPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllChildren());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getChildren(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	else if (relation == "Parent*") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllParents());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAncestors(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getAncDescPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllChildren());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getDescendants(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	else if (relation == "Uses") {
-		if (isSynonym(secondArgument)) {
-			if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getVarUsedByStm(
-					stoi(firstArgument)));
-			}
-			else if (isQuoted(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getVarUsedByProc(
-					trimFrontEnd(firstArgument)));
-			}
-			else if (declarations[firstArgument] == "procedure") {
-				return ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getProcVarUsePairs());
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getStmVarUsePairs());
-			}
-		}
-		if (declarations[firstArgument] != "procedure") {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getStmUsing(""));
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getStmUsing(
-					trimFrontEnd(secondArgument)));
-			}
-		}
-		else {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getProcUsing(""));
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getProcUsing(
-					trimFrontEnd(secondArgument)));
-			}
-		}
-	}
-	else if (relation == "Modifies") {
-		if (isSynonym(secondArgument)) {
-			if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getVarModifiedByStm(
-				stoi(firstArgument)));
-			}
-			else if (isQuoted(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getVarModifiedByProc(
-				trimFrontEnd(firstArgument)));
-			}
-			else if (declarations[firstArgument] == "procedure") {
-				return ContainerUtil::to_mapvec(firstArgument, secondArgument, 
-					PKB().getProcVarModifyPairs());
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getStmVarModifyPairs());
-			}
-		}
-		if (declarations[firstArgument] != "procedure") {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getStmModifying(""));
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getStmModifying(
-					trimFrontEnd(secondArgument)));
-			}
-		}
-		else {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getProcModifying(""));
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getProcModifying(
-					trimFrontEnd(secondArgument)));
-			}
-		}
-	}
-	if (relation == "Calls") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllCallers());
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getCaller(
-					trimFrontEnd(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getCallPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllCallees());
-			}
-			else if (isQuoted(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getCallee(
-					trimFrontEnd(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Calls*") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllCallers());
-			}
-			else if (isQuoted(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getCallAnc(
-					trimFrontEnd(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getCallStarPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllCallees());
-			}
-			else if (isQuoted(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getCallDesc(
-					trimFrontEnd(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Next") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllPrev());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getPrev(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getNextPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllNext());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getNext(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Next*") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllPrev());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllLnBefore(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getNextStarPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllNext());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllLnAfter(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Affects") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllAffectors());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAffector(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getAffectPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllAffected());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAffected(
-					stoi(firstArgument)));
-			}
-		}
-	}
-	if (relation == "Affects*") {
-		if (isSynonym(firstArgument)) {
-			if (secondArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAllAffectors());
-			}
-			else if (isInteger(secondArgument)) {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, PKB().getAffectorStar(
-					stoi(secondArgument)));
-			}
-			else {
-				tableResult = ContainerUtil::to_mapvec(firstArgument, secondArgument,
-					PKB().getAffectStarPairs());
-			}
-		}
-		if (isSynonym(secondArgument)) {
-			if (firstArgument == "_") {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAllAffected());
-			}
-			else if (isInteger(firstArgument)) {
-				tableResult = ContainerUtil::to_mapvec(secondArgument, PKB().getAffectedStar(
-					stoi(firstArgument)));
-			}
+			toAddTable = WithEvaluator::evaluate(declarations, firstArgument, secondArgument);
+		}
+		resultTable = QueryUtility::product(resultTable, toAddTable);
+		if (resultTable.begin()->second.size() == 0) {
+			break;
 		}
 	}
 
-	if (tableResult.size() == 1) {
-		if (isSynonym(firstArgument)) {
-			return filterType(firstArgument, declarations, tableResult);
-		}
-		else {
-			return filterType(secondArgument, declarations, tableResult);
-		}
- 	}
-	else if (tableResult.size() == 2) {
-		return filterType(firstArgument, secondArgument, declarations, tableResult);
-	}
-	
-	return tableResult;
-}
-
-/*
-The function returns the list of all statements.
-*/
-std::unordered_set<std::string> QueryEvaluator::getAllStms() {
-	std::unordered_set<std::string> allStms;
-	for (int i = 1; i <= PKB().getTotalStmNo(); i++) {
-		allStms.insert(std::to_string(i));
-	}
-
-	return allStms;
-}
-
-/*
-The function retrieves all statements 
-of a given type
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::getStmtsMap(
-	std::unordered_map<std::string, std::string> declarations,
-	std::string syn) {
-	std::string synType = declarations[syn];
-	if (synType == "stmt" || synType == "prog_line") {
-		return ContainerUtil::to_mapvec(syn, getAllStms());
-	}
-	else if (synType == "read") {
-		return ContainerUtil::to_mapvec(syn, PKB().getReadStms());
-	}
-	else if (synType == "print") {
-		return ContainerUtil::to_mapvec(syn, PKB().getPrintStms());
-	}
-	else if (synType == "while") {
-		return ContainerUtil::to_mapvec(syn, PKB().getWhileStms());
-	}
-	else if (synType == "if") {
-		return ContainerUtil::to_mapvec(syn, PKB().getIfStms());
-	}
-	else if (synType == "assign") {
-		return ContainerUtil::to_mapvec(syn, PKB().getAssignStms());
-	}
-	else if (synType == "variable") {
-		return ContainerUtil::to_mapvec(syn, PKB().getVariables());
-	}
-	else if (synType == "constant") {
-		return ContainerUtil::to_mapvec(syn, PKB().getConstants());
-	}
-	else if (synType == "procedure") {
-		return ContainerUtil::to_mapvec(syn, PKB().getProcList());
-	}
-	else if (synType == "call") {
-		return ContainerUtil::to_mapvec(syn, PKB().getCallStms());
-	}
-	throw "getStmtsMap failed; Synonym Type is invalid";
-}
-
-/*
-The function retrieves set of all
-members of a certain type from PKB
-which is stored as set of integers.
-*/
-std::unordered_set<std::string> QueryEvaluator::getStmts(std::string type) {
-	std::unordered_set<std::string> result;
-	if (type == "stmt" || type == "prog_line") {
-		result = getAllStms();
-	}
-	else if (type == "read") {
-		result = ContainerUtil::intSetToStrSet(PKB().getReadStms());
-	}
-	else if (type == "print") {
-		result = ContainerUtil::intSetToStrSet(PKB().getPrintStms());
-	}
-	else if (type == "while") {
-		result = ContainerUtil::intSetToStrSet(PKB().getWhileStms());
-	}
-	else if (type == "if") {
-		result = ContainerUtil::intSetToStrSet(PKB().getIfStms());
-	}
-	else if (type == "assign") {
-		result = ContainerUtil::intSetToStrSet(PKB().getAssignStms());
-	}
-	else if (type == "variable") {
-		result = PKB().getVariables();
-	}
-	else if (type == "constant") {
-		result = PKB().getConstants();
-	}
-	else if (type == "procedure") {
-		result = PKB().getProcList();
-	}
-	else if (type == "call") {
-		result = ContainerUtil::intSetToStrSet(PKB().getCallStms());
-	}
-	
-	return result;
-}
-
-/*
-The function does filtering
-for singleton results from PKB 
-so that the output satisfy a given
-type.
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::filterType(std::string synonym,
-	std::unordered_map<std::string, std::string> declarations,
-	std::unordered_map<std::string, std::vector<std::string>> toBeFiltered) {
-	std::unordered_map<std::string, std::vector<std::string>> filteredTable;
-	std::string synonymType = declarations[synonym];
-	std::unordered_set<std::string> filter = getStmts(synonymType);
-	if (synonymType == "stmt" || synonymType == "variable") {
-		return toBeFiltered;
-	} 
-	else {
-		std::vector<std::string> oldColumn = toBeFiltered[synonym];
-		std::vector<std::string> newColumn;
-		for (std::vector<std::string>::size_type i = 0; i != oldColumn.size(); i++) {
-			if (filter.count(oldColumn[i]) == 1) {
-				newColumn.push_back(oldColumn[i]);
-			}
-		}
-		filteredTable.insert({ synonym, newColumn });
-		return filteredTable;
-	}
-}
-
-/*
-The function filters the set of strings
-of pairs so that the first member and 
-second member is in the set of all 
-statements in a first type and a second
-type respectively.
-*/
-std::unordered_map<std::string, std::vector<std::string>> QueryEvaluator::filterType(std::string synonym1, 
-	std::string synonym2, std::unordered_map<std::string, std::string> declarations,
-	std::unordered_map<std::string, std::vector<std::string>> toBeFiltered) {
-	std::unordered_map<std::string, std::vector<std::string>> filteredSet;
-	std::string synonym1Type = declarations[synonym1];
-	std::string synonym2Type = declarations[synonym2];
-	std::unordered_set<std::string> filter1 = getStmts(synonym1Type);
-	std::unordered_set<std::string> filter2 = getStmts(synonym2Type);
-	std::vector<std::string> oldColumn1 = toBeFiltered[synonym1];
-	std::vector<std::string> oldColumn2 = toBeFiltered[synonym2];
-	if (synonym1Type == "stmt" && (synonym2Type == "stmt" || synonym2Type == "variable")) {
-		return toBeFiltered;
-	}
-	else if (synonym1Type == "stmt" && synonym2Type != "stmt" && synonym2Type != "variable") {
-		for (auto it = toBeFiltered.begin(); it != toBeFiltered.end(); ++it) {
-			std::vector<std::string> newColumn;
-			for (std::vector<std::string>::size_type i = 0; i != oldColumn2.size(); i++) {
-				if (filter2.count(oldColumn2[i]) == 1) {
-					newColumn.push_back(it->second[i]);
-				}
-			}
-			filteredSet.insert({ it->first, newColumn });
-		}
-	}
-	else if (synonym1Type != "stmt" && (synonym2Type == "stmt" || synonym2Type == "variable")) {
-		for (auto it = toBeFiltered.begin(); it != toBeFiltered.end(); ++it) {
-			std::vector<std::string> newColumn;
-			for (std::vector<std::string>::size_type i = 0; i != oldColumn1.size(); i++) {
-				if (filter1.count(oldColumn1[i]) == 1) {
-					newColumn.push_back(it->second[i]);
-				}
-			}
-			filteredSet.insert({ it->first, newColumn });
-		}
-	}
-	else if (synonym1Type != "stmt" && synonym2Type != "stmt" && synonym2Type != "variable") {
-		for (auto it = toBeFiltered.begin(); it != toBeFiltered.end(); ++it) {
-			std::vector<std::string> newColumn;
-			for (std::vector<std::string>::size_type i = 0; i != oldColumn1.size(); i++) {
-				if ((filter1.count(oldColumn1[i]) == 1) && (filter2.count(oldColumn2[i]) == 1)) {
-					newColumn.push_back(it->second[i]);
-				}
-			}
-			filteredSet.insert({ it->first, newColumn });
-		}
-	}
-	return filteredSet;
+	return resultTable;
 }
 
 /*
@@ -1249,8 +223,8 @@ then function returns 6.procName
 */
 std::string QueryEvaluator::toAttrRefVal(std::unordered_map<std::string, std::string> declarations,
 	std::string attrRef, std::string attrMember) {
-	std::string attr = attrOf(attrRef);
-	std::string ref = refOf(attrRef);
+	std::string attr = QueryUtility::attrOf(attrRef);
+	std::string ref = QueryUtility::refOf(attrRef);
 	std::string attrType = declarations[attr];
 	if ((attrType == "call") && (ref == "procName")) {
 		return PKB().getProcCalledBy(stoi(attrMember));
@@ -1266,72 +240,4 @@ std::string QueryEvaluator::toAttrRefVal(std::unordered_map<std::string, std::st
 	}
 }
 
-/*
-The function transforms a boolean value
-into a string.
-*/
-std::string QueryEvaluator::truthValue(bool boolean) {
-	if (boolean) {
-		return "true";
-	}
-
-	return "false";
-}
-
-/*
-Trims quote in front and end of a string.
-*/
-std::string QueryEvaluator::trimFrontEnd(std::string quotedString) {
-	return quotedString.substr(1, quotedString.size() - 2);
-}
-
-/*
-Checks if the string is an integer
-*/
-bool QueryEvaluator::isInteger(std::string s) {
-	bool result = LexicalToken::verifyInteger(s);
-	return result;
-}
-
-/*
-Checks if the string is quoted
-*/
-bool QueryEvaluator::isQuoted(std::string s) {
-	bool result = s[0] == '"';
-	return result;
-}
-
-/*
-Checks if the string is a synonym
-*/
-bool QueryEvaluator::isSynonym(std::string s) {
-	bool result = !isInteger(s) && !isQuoted(s) && !hasReference(s) && s != "_";
-	return result;
-}
-
-/*
-Checks if the string contains a reference
-*/
-bool QueryEvaluator::hasReference(std::string s) {
-	bool result = s.find(".") != std::string::npos;
-	return result;
-}
-
-/*
-Get attribute of an
-attribute reference.
-*/
-std::string QueryEvaluator::attrOf(std::string s) {
-	std::size_t dotPos = s.find(".");
-	return s.substr(0, dotPos);
-}
-
-/*
-Get reference of an
-attribute reference.
-*/
-std::string QueryEvaluator::refOf(std::string s) {
-	std::size_t dotPos = s.find(".");
-	return s.substr(dotPos + 1, s.size() - dotPos - 1);
-}
 	

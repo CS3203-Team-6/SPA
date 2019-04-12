@@ -34,14 +34,14 @@ Select p such that Calls*(p, "on3l1n3")
 cl455r00m, fru1t5, dr1nk5
 5000
 8 - select synonym, callsStar synonym synonym
-procedure p;
+procedure p, q;
 Select p such that Calls*(p, q)
 cl455r00m, fru1t5, dr1nk5
 5000
 9 - select synonym, callsStar synonym synonym
-procedure q;
-Select p such that Calls*(p, q)
-cl455r00m, fru1t5, dr1nk5
+procedure p, q;
+Select q such that Calls*(p, q)
+fru1t5, dr1nk5, on3l1n3
 5000
 10 - select boolean, callsStar procName procName
 

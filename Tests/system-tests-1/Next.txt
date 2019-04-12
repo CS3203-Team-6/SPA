@@ -156,7 +156,7 @@ Select a such that Next(a, pr)
 32 - select synonym, next synonym synonym
 if ifs; call c;
 Select c such that Next(ifs, c)
-11, 37, 66, 69, 75, 80, 96, 159, 169
+11, 37, 66, 75, 80, 96, 159, 169
 5000
 33 - select synonym, next synonym synonym
 read re; while w;

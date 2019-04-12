@@ -88,7 +88,7 @@ std::string ExpressionUtil::convertInfixToPrefix(std::string expression) {
 		operandStack.push(subexpre);
 	}
 			
-	return operandStack.top();
+	return " " + operandStack.top() + " ";
 }
 
 /* This function performs white space cleaning of an infix expression.

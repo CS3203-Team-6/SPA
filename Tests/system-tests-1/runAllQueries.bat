@@ -4,6 +4,12 @@ title system test 1 queries
 ..\..\Code\Debug\AutoTester sourceDemo.txt Calls.txt out-Calls.xml
 ..\..\Code\Debug\AutoTester sourceDemo.txt CallsStar.txt out-CallsStar.xml
 
+..\..\Code\Debug\AutoTester sourceDemo.txt Parent.txt out-Parent.xml
+..\..\Code\Debug\AutoTester sourceDemo.txt ParentStar.txt out-ParentStar.xml
+
+..\..\Code\Debug\AutoTester sourceDemo.txt Follows.txt out-Follows.xml
+..\..\Code\Debug\AutoTester sourceDemo.txt FollowsStar.txt out-FollowsStar.xml
+
 ..\..\Code\Debug\AutoTester sourceDemo.txt Modifies.txt out-Modifies.xml
 ..\..\Code\Debug\AutoTester sourceDemo.txt Uses.txt out-Uses.xml
 

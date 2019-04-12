@@ -1,0 +1,65 @@
+1 - 
+
+Select BOOLEAN such that Affects(2, 3)
+TRUE
+5000
+2 - var b is modified in proc c
+
+Select BOOLEAN such that Affects(2, 2)
+FALSE
+5000
+3 - var a is modified in proc c
+
+Select BOOLEAN such that Affects(3, 5)
+FALSE
+5000
+4 - var a not used in stmt 3
+
+Select BOOLEAN such that Affects(5, 3)
+FALSE
+5000
+5 - stmt 4 is not assign stmt
+
+Select BOOLEAN such that Affects(3, 4)
+FALSE
+5000
+6 - b modified in proc d
+
+Select BOOLEAN such that Affects(7, 9)
+FALSE
+5000
+7 - stmt 12 is not assign
+
+Select BOOLEAN such that Affects(10, 12)
+FALSE
+5000
+8 - c is not modified in else clause proc d
+
+Select BOOLEAN such that Affects(16, 18)
+TRUE
+5000
+9 - c is not modified in else clause proc d
+
+Select BOOLEAN such that Affects(16, 16)
+TRUE
+5000
+10 - 
+
+Select BOOLEAN such that Affects(19, 20)
+TRUE
+5000
+11 - c is not modified in if clause proc d
+
+Select BOOLEAN such that Affects(19, 23)
+TRUE
+5000
+12 - b is not modified in else clause proc d
+
+Select BOOLEAN such that Affects(20, 22)
+TRUE
+5000
+13 - 
+
+Select BOOLEAN such that Affects(26, 27)
+TRUE
+5000

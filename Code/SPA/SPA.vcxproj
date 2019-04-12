@@ -11,11 +11,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\AffectsEvaluator.cpp" />
+    <ClCompile Include="..\source\AffectsStarEvaluator.cpp" />
+    <ClCompile Include="..\source\AssignEvaluator.cpp" />
     <ClCompile Include="..\source\AssignParser.cpp" />
     <ClCompile Include="..\source\CallParser.cpp" />
+    <ClCompile Include="..\source\CallsEvaluator.cpp" />
+    <ClCompile Include="..\source\CallsStarEvaluator.cpp" />
     <ClCompile Include="..\source\CallStorage.cpp" />
     <ClCompile Include="..\source\ConditionalExp.cpp" />
-    <ClCompile Include="..\source\ContainerUtil.cpp" />
+    <ClCompile Include="..\source\FollowsEvaluator.cpp" />
+    <ClCompile Include="..\source\FollowsStarEvaluator.cpp" />
+    <ClCompile Include="..\source\IfEvaluator.cpp" />
+    <ClCompile Include="..\source\ModifiesEvaluator.cpp" />
+    <ClCompile Include="..\source\NextEvaluator.cpp" />
+    <ClCompile Include="..\source\NextStarEvaluator.cpp" />
+    <ClCompile Include="..\source\ParentEvaluator.cpp" />
+    <ClCompile Include="..\source\ParentStarEvaluator.cpp" />
+    <ClCompile Include="..\source\PatternEvaluator.cpp" />
+    <ClCompile Include="..\source\QueryUtility.cpp" />
     <ClCompile Include="..\source\CtrlVarStorage.cpp" />
     <ClCompile Include="..\source\DesignExtractor.cpp" />
     <ClCompile Include="..\source\ElseParser.cpp" />
@@ -35,20 +49,38 @@
     <ClCompile Include="..\source\Statement.cpp" />
     <ClCompile Include="..\source\StringUtil.cpp" />
     <ClCompile Include="..\source\QueryParser.cpp" />
+    <ClCompile Include="..\source\SuchThatEvaluator.cpp" />
+    <ClCompile Include="..\source\UsesEvaluator.cpp" />
+    <ClCompile Include="..\source\WhileEvaluator.cpp" />
     <ClCompile Include="..\source\WhileParser.cpp" />
     <ClCompile Include="..\source\FollowStorage.cpp" />
     <ClCompile Include="..\source\ParentStorage.cpp" />
     <ClCompile Include="..\source\UseStorage.cpp" />
-    <ClCompile Include="..\source\ModifyStorage.cpp" /> 
-    <ClCompile Include="..\source\Optimizer.cpp" />   
+    <ClCompile Include="..\source\ModifyStorage.cpp" />
+    <ClCompile Include="..\source\Optimizer.cpp" />
     <ClCompile Include="..\source\OptimizerUtility.cpp" />
+    <ClCompile Include="..\source\WithEvaluator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\source\AffectsEvaluator.h" />
+    <ClInclude Include="..\source\AffectsStarEvaluator.h" />
+    <ClInclude Include="..\source\AssignEvaluator.h" />
     <ClInclude Include="..\source\AssignParser.h" />
     <ClInclude Include="..\source\CallParser.h" />
+    <ClInclude Include="..\source\CallsEvaluator.h" />
+    <ClInclude Include="..\source\CallsStarEvaluator.h" />
     <ClInclude Include="..\source\CallStorage.h" />
     <ClInclude Include="..\source\ConditionalExp.h" />
-    <ClInclude Include="..\source\ContainerUtil.h" />
+    <ClInclude Include="..\source\FollowsEvaluator.h" />
+    <ClInclude Include="..\source\FollowsStarEvaluator.h" />
+    <ClInclude Include="..\source\IfEvaluator.h" />
+    <ClInclude Include="..\source\ModifiesEvaluator.h" />
+    <ClInclude Include="..\source\NextEvaluator.h" />
+    <ClInclude Include="..\source\NextStarEvaluator.h" />
+    <ClInclude Include="..\source\ParentEvaluator.h" />
+    <ClInclude Include="..\source\ParentStarEvaluator.h" />
+    <ClInclude Include="..\source\PatternEvaluator.h" />
+    <ClInclude Include="..\source\QueryUtility.h" />
     <ClInclude Include="..\source\CtrlVarStorage.h" />
     <ClInclude Include="..\source\DesignExtractor.h" />
     <ClInclude Include="..\source\ElseParser.h" />
@@ -70,12 +102,16 @@
     <ClInclude Include="..\source\Statement.h" />
     <ClInclude Include="..\source\StringUtil.h" />
     <ClInclude Include="..\source\QueryParser.h" />
+    <ClInclude Include="..\source\SuchThatEvaluator.h" />
+    <ClInclude Include="..\source\UsesEvaluator.h" />
+    <ClInclude Include="..\source\WhileEvaluator.h" />
     <ClInclude Include="..\source\WhileParser.h" />
     <ClInclude Include="..\source\FollowStorage.h" />
     <ClInclude Include="..\source\ParentStorage.h" />
     <ClInclude Include="..\source\UseStorage.h" />
     <ClInclude Include="..\source\ModifyStorage.h" />
     <ClInclude Include="..\source\Hasher.h" />
+    <ClInclude Include="..\source\WithEvaluator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81}</ProjectGuid>

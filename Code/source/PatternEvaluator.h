@@ -1,0 +1,18 @@
+#pragma once
+
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "AssignEvaluator.h"
+#include "IfEvaluator.h"
+#include "WhileEvaluator.h"
+
+class PatternEvaluator
+{
+public:
+	static std::unordered_map<std::string, std::vector<std::string>>
+		evaluate(std::unordered_map<std::string, std::string> declarations,
+			std::string patternSynonym, std::string firstArgument, std::string secondArgument);
+};

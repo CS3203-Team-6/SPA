@@ -6,7 +6,7 @@ Select s such that Parent(_, _)
 2 - select synonym, parent wildcard synonym
 stmt s;
 Select s such that Parent(_, s)
-2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 80, 81, 82, 83, 84, 85, 86
+2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 80, 81, 82, 83, 84, 85, 86
 5000
 3 - select synonym, parent wildcard synonym
 stmt s1, s2;
@@ -181,7 +181,7 @@ Select ifs such that Parent(ifs, re)
 37 - select synonym, parent synonym synonym
 print pr; while w; 
 Select w such that Parent(w, pr)
-11, 18, 31, 44, 77
+11, 18, 31, 41, 77
 5000
 38 - select synonym, parent synonym synonym
 stmt s; call c;
@@ -197,4 +197,129 @@ none
 stmt s;
 Select s such that Parent(s, s3)
 none
+5000
+41 - select synonym, all statements inside if
+if ifs; stmt s;
+Select s such that Parent(ifs, s)
+2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 31, 36, 40, 57, 58, 59, 60, 61, 62, 63, 64, 65, 81, 82, 83
+5000
+42 - select synonym, all if statements
+if ifs; stmt s;
+Select ifs such that Parent(ifs, s)
+1, 19, 30, 56, 57, 61, 80
+5000
+43 - select synonym, all statements inside while
+while w; stmt s;
+Select s such that Parent(w, s)
+12, 13, 14, 15, 16, 17, 19, 25, 26, 27, 28, 29, 32, 33, 34, 35, 37, 38, 39, 42, 43, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 67, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 80, 84, 85, 86
+5000
+44 - select synonym, all while statements
+while w; stmt s;
+Select w such that Parent(w, s)
+11, 18, 31, 36, 41, 46, 50, 51, 66, 67, 68, 72, 73, 77, 79, 84
+5000
+45 - select synonym, all while inside another while
+while w, w1;
+Select w1 such that Parent(w, w1)
+51, 67, 68, 73, 77, 84
+5000
+46 - select synonym, all while outside another while
+while w, w1;
+Select w such that Parent(w, w1)
+50, 66, 67, 72, 79
+5000
+47 - select synonym, all if inside another if
+if ifs, ifs1;
+Select ifs1 such that Parent(ifs, ifs1)
+57, 61
+5000
+48 - select synonym, all if outside another if
+if ifs, ifs1;
+Select ifs such that Parent(ifs, ifs1)
+56
+5000
+49 - select synonym, all if inside while
+while w; if ifs;
+Select ifs such that Parent(w, ifs)
+19, 80
+5000
+50 - select synonym, all while outside if
+while w; if ifs;
+Select w such that Parent(w, ifs)
+18, 79
+5000
+51 - select synonym, all while inside if
+while w; if ifs;
+Select w such that Parent(ifs, w)
+31, 36
+5000
+52 - select synonym, all if outside while
+while w; if ifs;
+Select ifs such that Parent(ifs, w)
+30
+5000
+53 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(1, 1)
+FALSE
+5000
+54 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(1, 11)
+FALSE
+5000
+55 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(1, 18)
+FALSE
+5000
+56 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(0, 0)
+FALSE
+5000
+57 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(0, 87)
+FALSE
+5000
+58 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(90, 100)
+FALSE
+5000
+59 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(50, 54)
+FALSE
+5000
+60 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(56, 59)
+FALSE
+5000
+61 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(66, 68)
+FALSE
+5000
+62 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(66, 65)
+FALSE
+5000
+63 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(10, _)
+FALSE
+5000
+64 - select synonym, nonrelated stmtNumber
+
+Select BOOLEAN such that Parent(1, _)
+TRUE
+5000
+65 - select synonym, all calls inside if
+if ifs; call c;
+Select c such that Parent(ifs, c)
+2, 4, 6, 7, 9, 20, 23, 24, 40, 62, 65
 5000

@@ -188,7 +188,7 @@
     <ClCompile Include="PreProcessor\PreprocessorTest.cpp" />
     <ClCompile Include="PQL\QueryParserTest.cpp" />
     <ClCompile Include="Utility\LexicalTokenTest.cpp" />
-    <ClCompile Include="Utility\ContainerUtilTest.cpp" />
+    <ClCompile Include="Utility\QueryUtilityTest.cpp" />
     <ClCompile Include="PQL\QueryValidatorTest.cpp" />
     <ClCompile Include="PreProcessor\StatementTest.cpp" />
     <ClCompile Include="Utility\ConditionalExpTest.cpp" />
