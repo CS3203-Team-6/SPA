@@ -98,7 +98,7 @@ std::string QueryValidator::validateSelectedVar(std::vector<std::string> selecte
 		return "invalid queries";
 	}
 
-	for (int i = 0; i < selectedVar.size(); i++) {
+	for (size_t i = 0; i < selectedVar.size(); i++) {
 		
 		// select type: BOOLEAN
 		if (selectedVar[i] == "BOOLEAN" && selectedVar.size() != 1) {
@@ -172,7 +172,7 @@ std::string QueryValidator::validateSuchThatParam(std::vector<std::pair<std::str
 	std::unordered_set<std::string> validArgsCalls = { "procedure" };
 	std::unordered_set<std::string> validArgsAffects = { "stmt", "assign", "prog_line" };
 
-	for (int i = 0; i < param.size(); i++) {
+	for (size_t i = 0; i < param.size(); i++) {
 		std::string relation = param[i].first;
 		std::string firstArgs = param[i].second.first;
 		std::string secondArgs = param[i].second.second;
@@ -348,7 +348,7 @@ Note: for if pattern, the third args will be removed
 std::string QueryValidator::validatePatternParam(std::vector<std::pair<std::string, std::pair<std::string, std::string>>> param,
 												 std::unordered_map<std::string, std::string> declarationsMap) {
 	
-	for (int i = 0; i < param.size(); i++) {
+	for (size_t i = 0; i < param.size(); i++) {
 		std::string stmt = param[i].first;
 		std::string stmtType;
 		std::string firstArgs = param[i].second.first;
@@ -428,7 +428,7 @@ std::string QueryValidator::validateWithParam(std::vector<std::pair<std::string,
 	std::unordered_set<std::string> stringTypeRefProcName = { "procedure", "call" };
 	std::unordered_set<std::string> stringTypeRefVarName = { "variable", "read", "print" };
 
-	for (int i = 0; i < param.size(); i++) {
+	for (size_t i = 0; i < param.size(); i++) {
 		std::string firstArgs = param[i].first;
 		std::string secondArgs = param[i].second;
 		std::string firstArgsType = "";

@@ -12,12 +12,12 @@ std::string ParentEvaluator::isTrivial(std::string firstArgument, std::string se
 			result = PKB().hasParentRelation();
 		}
 		else if (QueryUtility::isInteger(secondArgument)) {
-			result = PKB().isChild(stoi(secondArgument)) > 0;
+			result = PKB().isChild(stoi(secondArgument));
 		}
 	}
 	else if (QueryUtility::isInteger(firstArgument)) {
 		if (secondArgument == "_") {
-			result = PKB().isParent(stoi(firstArgument)) > 0;
+			result = PKB().isParent(stoi(firstArgument));
 		}
 		else if (QueryUtility::isInteger(secondArgument)) {
 			result = PKB().getParent(stoi(secondArgument)) == stoi(firstArgument);
