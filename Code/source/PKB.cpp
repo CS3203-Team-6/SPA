@@ -18,6 +18,9 @@ std::unordered_map<int, std::vector<int>> PKB::whileBlockStmLists;
 std::unordered_map<int, std::vector<int>> PKB::ifBlockStmLists;
 std::unordered_map<int, std::vector<int>> PKB::elseBlockStmLists;
 
+std::unordered_set< std::pair<int, int>, intPairhash> PKB::affectPairCache;
+std::unordered_set< std::pair<int, int>, intPairhash> PKB::affectStarPairCache;
+
 FollowStorage PKB::fStore;
 ParentStorage PKB::pStore;
 UseStorage PKB::uStore;
@@ -265,7 +268,7 @@ int PKB::getTotalStmNo()
 
 stmType PKB::getStmType(int stm)
 {
-	if (stm <= 0 || stm > stmTypeList.size())
+	if (stm <= 0 || stm > (int) stmTypeList.size())
 	{
 		return nonExistant;
 	}
@@ -376,7 +379,7 @@ std::vector<int> PKB::getWhileStmContainer(int whileStm)
 
 std::string PKB::getProcOfStm(int stm)
 {
-	if (stm <= stmProcList.size() && stm > 0)
+	if (stm <= (int) stmProcList.size() && stm > 0)
 	{
 		return stmProcList.at(stm - 1);
 	}
@@ -700,83 +703,200 @@ std::unordered_set<std::pair<int, int>, intPairhash> PKB::getNextStarPairs()
 
 bool PKB::hasAffectsRelation()
 {
+	if (!affectPairCache.empty())
+	{
+		return true;
+	}
 	return RunTimeDesignExtractor().hasAffectsRelation();
 }
 
 bool PKB::isAffector(int stm)
 {
+	if (!affectPairCache.empty())
+	{
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			if (itr->first == stm)
+			{
+				return true;
+			}
+		}
+	}
 	return RunTimeDesignExtractor().isStatementAffectingAnother(stm);
 }
 
 bool PKB::isAffected(int stm)
 {
+	if (!affectPairCache.empty())
+	{
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			if (itr->second == stm)
+			{
+				return true;
+			}
+		}
+	}
 	return RunTimeDesignExtractor().isStatementAffectedByAnother(stm);
 }
 
 bool PKB::hasAffectPair(int stm1, int stm2)
 {
+	if (!affectPairCache.empty())
+	{
+		if (affectPairCache.find(std::pair<int, int>(stm1, stm2)) != affectPairCache.end())
+		{
+			return true;
+		}
+		return false;
+	}
 	return RunTimeDesignExtractor().isAffect(stm1, stm2);
 }
 
 bool PKB::hasAffectStarPair(int stm1, int stm2)
 {
+	if (!affectStarPairCache.empty())
+	{
+		if (affectStarPairCache.find(std::pair<int, int>(stm1, stm2)) != affectStarPairCache.end())
+		{
+			return true;
+		}
+		return false;
+	}
 	return RunTimeDesignExtractor().isAffectStar(stm1, stm2);
 }
 
 std::vector<int> PKB::getAffector(int stm)
 {
+	if (!affectPairCache.empty())
+	{
+		std::vector<int> affectors;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			if (itr->second == stm)
+			{
+				affectors.push_back(itr->first);
+			}
+		}
+		return affectors;
+	}
 	return RunTimeDesignExtractor().getStatementsAffectingIndex(stm);
 }
 
 std::vector<int> PKB::getAffected(int stm)
 {
+	if (!affectPairCache.empty())
+	{
+		std::vector<int> affected;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			if (itr->first == stm)
+			{
+				affected.push_back(itr->second);
+			}
+		}
+		return affected;
+	}
 	return RunTimeDesignExtractor().getStatementsAffectedByIndex(stm);
 }
 
 std::vector<int> PKB::getAffectorStar(int stm)
 {
+	if (!affectStarPairCache.empty())
+	{
+		std::vector<int> affectors;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectStarPairCache.cbegin(); itr != affectStarPairCache.cend(); itr++)
+		{
+			if (itr->second == stm)
+			{
+				affectors.push_back(itr->first);
+			}
+		}
+		return affectors;
+	}
 	return RunTimeDesignExtractor().getAllStatementsAffectingIndexStar(stm);
 }
 
 std::vector<int> PKB::getAffectedStar(int stm)
 {
+	if (!affectStarPairCache.empty())
+	{
+		std::vector<int> affected;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectStarPairCache.cbegin(); itr != affectStarPairCache.cend(); itr++)
+		{
+			if (itr->first == stm)
+			{
+				affected.push_back(itr->second);
+			}
+		}
+		return affected;
+	}
 	return RunTimeDesignExtractor().getAllStatementsAffectedByIndexStar(stm);
 }
 
 std::vector<int> PKB::getAllAffectors()
 {
+	if (!affectPairCache.empty())
+	{
+		std::vector<int> affectors;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			affectors.push_back(itr->first);
+		}
+		return affectors;
+	}
 	return RunTimeDesignExtractor().getAllStatementsAffectingAnother();
 }
 
 std::vector<int> PKB::getAllAffected()
 {
+	if (!affectPairCache.empty())
+	{
+		std::vector<int> affected;
+		for (std::unordered_set<std::pair<int, int>, intPairhash>::iterator itr =
+			 affectPairCache.cbegin(); itr != affectPairCache.cend(); itr++)
+		{
+			affected.push_back(itr->second);
+		}
+		return affected;
+	}
 	return RunTimeDesignExtractor().getAllStatementsAffectingByAnother();
 }
 
 std::unordered_set<std::pair<int, int>, intPairhash> PKB::getAffectPairs()
 {
-	return RunTimeDesignExtractor().getAffectsPair();
+	affectPairCache = RunTimeDesignExtractor().getAffectsPair();
+	return affectPairCache;
 }
 
 std::unordered_set<std::pair<int, int>, intPairhash> PKB::getAffectStarPairs()
 {
-	return RunTimeDesignExtractor().getAffectsStarPair();
+	affectStarPairCache =  RunTimeDesignExtractor().getAffectsStarPair();
+	return affectStarPairCache;
 }
 
 std::unordered_set<int> PKB::findPattern(std::string variable, std::string expr, bool isExclusive)
 {
 	std::unordered_set<int> validStm;
-	for each (const auto elem in patternList)
+	for (std::unordered_map<int, std::pair<std::string, std::string>>::iterator itr =
+		 patternList.begin(); itr != patternList.end(); itr++)
 	{
-		if (elem.second.first.compare(variable) == 0)
+		if (itr->second.first.compare(variable) == 0)
 		{
-			if (isExclusive && elem.second.second.compare(expr) == 0)
+			if (isExclusive && itr->second.second.compare(expr) == 0)
 			{
-				validStm.emplace(elem.first);
+				validStm.emplace(itr->first);
 			}
-			else if (!isExclusive && elem.second.second.find(expr) != std::string::npos)
+			else if (!isExclusive && itr->second.second.find(expr) != std::string::npos)
 			{
-				validStm.emplace(elem.first);
+				validStm.emplace(itr->first);
 			}
 		}
 	}
@@ -786,15 +906,16 @@ std::unordered_set<int> PKB::findPattern(std::string variable, std::string expr,
 std::unordered_set<int> PKB::findPattern(std::string expr, bool isExclusive)
 {
 	std::unordered_set<int> validStm;
-	for each (const auto elem in patternList)
+	for (std::unordered_map<int, std::pair<std::string, std::string>>::iterator itr =
+		 patternList.begin(); itr != patternList.end(); itr++)
 	{
-		if (isExclusive && elem.second.second.compare(expr) == 0)
+		if (isExclusive && itr->second.second.compare(expr) == 0)
 		{
-			validStm.emplace(elem.first);
+			validStm.emplace(itr->first);
 		}
-		else if (!isExclusive && elem.second.second.find(expr) != std::string::npos)
+		else if (!isExclusive && itr->second.second.find(expr) != std::string::npos)
 		{
-			validStm.emplace(elem.first);
+			validStm.emplace(itr->first);
 		}
 	}
 	return validStm;
@@ -804,15 +925,16 @@ std::unordered_set<std::pair<int, std::string>, intStringhash>PKB::findPatternPa
 																					bool isExclusive)
 {
 	std::unordered_set<std::pair<int, std::string>, intStringhash> validPairs;
-	for each (const auto elem in patternList)
+	for (std::unordered_map<int, std::pair<std::string, std::string>>::iterator itr =
+		 patternList.begin(); itr != patternList.end(); itr++)
 	{
-		if (isExclusive && elem.second.second.compare(expr) == 0)
+		if (isExclusive && itr->second.second.compare(expr) == 0)
 		{
-			validPairs.emplace(std::pair<int, std::string>(elem.first, elem.second.first));
+			validPairs.emplace(std::pair<int, std::string>(itr->first, itr->second.first));
 		}
-		else if (!isExclusive && elem.second.second.find(expr) != std::string::npos)
+		else if (!isExclusive && itr->second.second.find(expr) != std::string::npos)
 		{
-			validPairs.emplace(std::pair<int, std::string>(elem.first, elem.second.first));
+			validPairs.emplace(std::pair<int, std::string>(itr->first, itr->second.first));
 		}
 	}
 	return validPairs;
@@ -858,29 +980,38 @@ std::unordered_set<std::pair<int, std::string>, intStringhash> PKB::getWhileStmC
 	return cvStore.getWhileStmControlVariablePair();
 }
 
-void PKB::erase()
+void PKB::clear()
 {
-	procList.erase(procList.begin(), procList.end());
-	procStmMap.erase(procStmMap.begin(), procStmMap.end());
-	stmTypeList.erase(stmTypeList.begin(), stmTypeList.end());
-	varList.erase(varList.begin(), varList.end());
-	constList.erase(constList.begin(), constList.end());
-	readStmList.erase(readStmList.begin(), readStmList.end());
-	printStmList.erase(printStmList.begin(), printStmList.end());
-	assignStmList.erase(assignStmList.begin(), assignStmList.end());
-	ifStmList.erase(ifStmList.begin(), ifStmList.end());
-	whileStmList.erase(whileStmList.begin(), whileStmList.end());
-	callStmList.erase(callStmList.begin(), callStmList.end());
-	patternList.erase(patternList.begin(), patternList.end());
-	readPairList.erase(readPairList.begin(), readPairList.end());
-	printPairList.erase(printPairList.begin(), printPairList.end());
-	whileBlockStmLists.erase(whileBlockStmLists.begin(), whileBlockStmLists.end());
-	ifBlockStmLists.erase(ifBlockStmLists.begin(), ifBlockStmLists.end());
-	elseBlockStmLists.erase(elseBlockStmLists.begin(), elseBlockStmLists.end());
-	fStore.erase();
-	pStore.erase();
-	uStore.erase();
-	mStore.erase();
-	cStore.erase();
-	nStore.erase();
+	procList.clear();
+	procStmMap.clear();
+	stmProcList.clear();
+	stmTypeList.clear();
+	varList.clear();
+	constList.clear();
+	readStmList.clear();
+	printStmList.clear();
+	assignStmList.clear();
+	ifStmList.clear();
+	whileStmList.clear();
+	callStmList.clear();
+	patternList.clear();
+	readPairList.clear();
+	printPairList.clear();
+	whileBlockStmLists.clear();
+	ifBlockStmLists.clear();
+	elseBlockStmLists.clear();
+	affectPairCache.clear();
+	affectStarPairCache.clear();
+	fStore.clear();
+	pStore.clear();
+	uStore.clear();
+	mStore.clear();
+	cStore.clear();
+	nStore.clear();
+}
+
+void PKB::clearCache()
+{
+	affectPairCache.clear();
+	affectStarPairCache.clear();
 }

@@ -93,7 +93,7 @@ public:
 	std::unordered_set< std::pair<int, int>, intPairhash> getFollowStarPairs();
 
 	// empty the entire storage
-	void erase();
+	void clear();
 
 private:
 	static std::unordered_map<int, fRelationships> followTable;

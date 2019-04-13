@@ -109,12 +109,12 @@ std::unordered_set<std::pair<std::string, std::string>, strPairhash> ModifyStora
 	return procVarPairList;
 }
 
-void ModifyStorage::erase()
+void ModifyStorage::clear()
 {
-	stmVarPairList.erase(stmVarPairList.begin(), stmVarPairList.end());
-	procVarPairList.erase(procVarPairList.begin(), procVarPairList.end());
-	stmToVarMap.erase(stmToVarMap.begin(), stmToVarMap.end());
-	procToVarMap.erase(procToVarMap.begin(), procToVarMap.end());
-	varToProcMap.erase(varToProcMap.begin(), varToProcMap.end());
-	varToStmMap.erase(varToStmMap.begin(), varToStmMap.end());
+	stmVarPairList.clear();
+	procVarPairList.clear();
+	stmToVarMap.clear();
+	procToVarMap.clear();
+	varToProcMap.clear();
+	varToStmMap.clear();
 }

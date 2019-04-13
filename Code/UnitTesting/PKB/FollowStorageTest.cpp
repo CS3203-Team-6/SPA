@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(FollowStorage_Initializing)
 		{
 			FollowStorage store;
-			store.erase();
+			store.clear();
 			store.addFollow(1, 2);
 			store.addFollow(2, 3);
 			store.addFollow(3, 4);

@@ -98,7 +98,7 @@ public:
 	std::unordered_set< std::pair<int, int>, intPairhash> getAncDescPair();
 
 	// empty the entire storage
-	void erase();
+	void clear();
 
 private:
 	static std::unordered_map<int, pRelationships> parentTable;

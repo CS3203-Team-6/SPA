@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(CallStorage_Initialize)
 		{
 			CallStorage store;
-			store.erase();
+			store.clear();
 			store.addCall("fruit", "fruit2", 2);
 			store.addCall("fruit", "fruit3", 9);
 			store.addCall("fruit2", "fruit3", 12);

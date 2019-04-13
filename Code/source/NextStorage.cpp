@@ -73,10 +73,10 @@ std::unordered_set<std::pair<int, int>, intPairhash> NextStorage::getNextPairs()
 	return nextPairList;
 }
 
-void NextStorage::erase()
+void NextStorage::clear()
 {
-	nextTable.erase(nextTable.begin(), nextTable.end());
-	nextPairList.erase(nextPairList.begin(), nextPairList.end());
-	nextList.erase(nextList.begin(), nextList.end());
-	prevList.erase(prevList.begin(), prevList.end());
+	nextTable.clear();
+	nextPairList.clear();
+	nextList.clear();
+	prevList.clear();
 }

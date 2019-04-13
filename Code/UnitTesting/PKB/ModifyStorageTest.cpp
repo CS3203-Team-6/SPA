@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(ModifyStorage_Initializing)
 		{
 			ModifyStorage store;
-			store.erase();
+			store.clear();
 			store.addModifiesStm(1, "apple");
 			store.addModifiesStm(2, "pineapple");
 			store.addModifiesStm(2, "pear");

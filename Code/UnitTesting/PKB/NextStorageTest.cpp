@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(NextStorage_Initialize)
 		{
 			NextStorage store;
-			store.erase();
+			store.clear();
 			store.addNext(1, 2);
 			store.addNext(2, 3);
 			store.addNext(3, 4);
@@ -27,10 +27,6 @@ namespace UnitTesting
 			store.addNext(13, 14);
 		}
 
-		TEST_CLASS_CLEANUP(NextStorage_CleanUp)
-		{
-			NextStorage().erase();
-		}
 		TEST_METHOD(isEmpty_NextStorage_False)
 		{
 			NextStorage store;
@@ -78,6 +74,5 @@ namespace UnitTesting
 			NextStorage store;
 			Assert::IsTrue(store.getNextPairs() == nextPairList);
 		}
-
 	};
 }

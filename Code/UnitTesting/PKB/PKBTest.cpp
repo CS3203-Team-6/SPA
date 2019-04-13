@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(PKB_Initialize)
 		{
 			PKB store;
-			store.erase();
+			store.clear();
 
 			store.addProc("fruit");
 			store.addProc("fruit2");

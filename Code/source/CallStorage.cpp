@@ -175,13 +175,13 @@ std::unordered_set<std::pair<int, std::string>, intStringhash> CallStorage::getS
 	return stmProcCallPairList;
 }
 
-void CallStorage::erase()
+void CallStorage::clear()
 {
-	callTable.erase(callTable.begin(), callTable.end());
-	callPairList.erase(callPairList.begin(), callPairList.end());
-	callStarPairList.erase(callStarPairList.begin(), callStarPairList.end());
-	callerList.erase(callerList.begin(), callerList.end());
-	calleeList.erase(calleeList.begin(), calleeList.end());
-	stmToProcMap.erase(stmToProcMap.begin(), stmToProcMap.end());
-	procToStmMap.erase(procToStmMap.begin(), procToStmMap.end());
+	callTable.clear();
+	callPairList.clear();
+	callStarPairList.clear();
+	callerList.clear();
+	calleeList.clear();
+	stmToProcMap.clear();
+	procToStmMap.clear();
 }

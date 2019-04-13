@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(UseStorage_Initializing)
 		{
 			UseStorage store;
-			store.erase();
+			store.clear();
 			store.addUsesStm(2, "apple");
 			store.addUsesStm(2, "melon");
 			store.addUsesStm(2, "banana");

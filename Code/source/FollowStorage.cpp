@@ -147,11 +147,11 @@ std::unordered_set<std::pair<int, int>, intPairhash> FollowStorage::getFollowSta
 	return followStarPairList;
 }
 
-void FollowStorage::erase()
+void FollowStorage::clear()
 {
-	followTable.erase(followTable.begin(), followTable.end());
-	followerList.erase(followerList.begin(), followerList.end());
-	followedList.erase(followedList.begin(), followedList.end());
-	followPairList.erase(followPairList.begin(), followPairList.end());
-	followStarPairList.erase(followStarPairList.begin(), followStarPairList.end());
+	followTable.clear();
+	followerList.clear();
+	followedList.clear();
+	followPairList.clear();
+	followStarPairList.clear();
 }

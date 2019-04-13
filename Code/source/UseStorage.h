@@ -66,7 +66,7 @@ public:
 	std::unordered_set< std::pair<std::string, std::string>, strPairhash> getProcVarPairs();
 
 	// empty the entire storage
-	void erase();
+	void clear();
 
 private:
 	static std::unordered_set<std::pair<int, std::string>, intStringhash> stmVarPairList;

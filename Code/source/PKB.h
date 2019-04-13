@@ -691,10 +691,13 @@ public:
 	std::unordered_set<std::pair<int, std::string>, intStringhash> getWhileStmControlVariablePair();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Erase Methods			//////////////////////////////////////////////////////////////////////////
+	//Clear Methods			//////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// erase storage
-	void erase();
+	// clear entire storage
+	void clear();
+
+	// clear affects cache
+	void clearCache();
 
 private:
 	static std::unordered_set<std::string> procList;
@@ -714,6 +717,9 @@ private:
 	static std::unordered_map<int, std::vector<int>> whileBlockStmLists;
 	static std::unordered_map<int, std::vector<int>> ifBlockStmLists;
 	static std::unordered_map<int, std::vector<int>> elseBlockStmLists;
+
+	static std::unordered_set< std::pair<int, int>, intPairhash> affectPairCache;
+	static std::unordered_set< std::pair<int, int>, intPairhash> affectStarPairCache;
 
 	static FollowStorage fStore;
 	static ParentStorage pStore;

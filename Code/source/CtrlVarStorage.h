@@ -30,7 +30,7 @@ public:
 	std::unordered_set<std::pair<int, std::string>, intStringhash> getWhileStmControlVariablePair();
 
 	// Empty storage
-	void erase();
+	void clear();
 
 private:
 	static std::unordered_map<std::string, std::unordered_set<int>> ifVariableToStm;

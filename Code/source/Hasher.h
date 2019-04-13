@@ -27,7 +27,7 @@ public:
 		std::hash<std::string> strHasher;
 
 		T a = x.first;
-		auto b = strHasher(x.second);
+		int b = strHasher(x.second);
 		return a >= b ? a * a + a + b : a + b * b;
 	}
 };
@@ -39,8 +39,8 @@ public:
 	{
 		std::hash<std::string> strHasher;
 
-		auto a = strHasher(x.first);
-		auto b = strHasher(x.second);
+		int a = strHasher(x.first);
+		int b = strHasher(x.second);
 		return a >= b ? a * a + a + b : a + b * b;
 	}
 };

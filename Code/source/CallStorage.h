@@ -112,7 +112,7 @@ public:
 	std::unordered_set< std::pair<int, std::string>, intStringhash> getStmProcCallPairs();
 
 	// empty the entire storage
-	void erase();
+	void clear();
 
 private:
 	static std::unordered_map<std::string, cRelationships> callTable;

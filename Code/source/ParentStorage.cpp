@@ -147,11 +147,11 @@ std::unordered_set<std::pair<int, int>, intPairhash> ParentStorage::getAncDescPa
 	return anc_DescPairList;
 }
 
-void ParentStorage::erase()
+void ParentStorage::clear()
 {
-	parentTable.erase(parentTable.begin(), parentTable.end());
-	parent_ChildPairList.erase(parent_ChildPairList.begin(), parent_ChildPairList.end());
-	anc_DescPairList.erase(anc_DescPairList.begin(), anc_DescPairList.end());
-	parentList.erase(parentList.begin(), parentList.end());
-	childrenList.erase(childrenList.begin(), childrenList.end());
+	parentTable.clear();
+	parent_ChildPairList.clear();
+	anc_DescPairList.clear();
+	parentList.clear();
+	childrenList.clear();
 }

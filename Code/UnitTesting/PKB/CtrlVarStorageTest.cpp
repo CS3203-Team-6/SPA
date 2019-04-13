@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(CallStorage_Initialize)
 		{
 			CtrlVarStorage store;
-			store.erase();
+			store.clear();
 			store.addIfControlVariable(5, "apple");
 			store.addWhileControlVariable(6, "durian");
 			store.addWhileControlVariable(6, "cherry");

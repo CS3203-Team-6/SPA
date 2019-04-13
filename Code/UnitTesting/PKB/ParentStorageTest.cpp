@@ -11,7 +11,7 @@ namespace UnitTesting
 		TEST_METHOD_INITIALIZE(ParentStorage_Initializing)
 		{
 			ParentStorage store;
-			store.erase();
+			store.clear();
 			store.addParent_Child(5, 6);
 			store.addParent_Child(6, 7);
 			store.addParent_Child(5, 8);
